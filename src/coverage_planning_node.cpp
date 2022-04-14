@@ -40,11 +40,11 @@ int read(){
         coverage_planning_area_file.close();
     }
     data_iterator = head;
-    while ( data_iterator->next!=head)
+    /*while ( data_iterator->next!=head)
     {
         cout<<data_iterator->coordinates_x<<","<<data_iterator->coordinates_y<<endl;  
         data_iterator = data_iterator->next;
-    }
+    }*/
     return 0;
 }
 float dist (float x1, float y1, float x2, float y2){
@@ -54,21 +54,21 @@ float dist (float x1, float y1, float x2, float y2){
 
 void coordinate_finder(){
     float side_max=0;
-    //select the side for moving
     coordinates_node* iterator = head;
     coordinates_node* side_coordinate1;
     coordinates_node* side_coordinate2;
     while(iterator->next!=head) {
         float side_length = dist(iterator->coordinates_x, iterator->coordinates_y, (iterator->next)->coordinates_x, (iterator->next)->coordinates_y);
         if(side_length>side_max){
+            //cout<<"m here"<<endl;
             side_max = side_length;
             side_coordinate1 = iterator;
-            side_coordinate1 = iterator->next;
+            //cout<<"first coordinate is"<<side_coordinate1->coordinates_x<<","<<side_coordinate1->coordinates_y<<"second coordinate is"<<side_coordinate2->coordinates_x<<","<<side_coordinate2->coordinates_y<<endl;
+            side_coordinate2 = iterator->next;
         }
-
+        iterator = iterator->next;
     }
-    //find coordinates along same direction
-    
+    cout<<"first coordinate is"<<side_coordinate1->coordinates_x<<","<<side_coordinate1->coordinates_y<<"second coordinate is"<<side_coordinate2->coordinates_x<<","<<side_coordinate2->coordinates_y<<endl;
 }
 
 void trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* side_coordinate2){
@@ -122,6 +122,6 @@ void trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* si
 
 int main(){
     read();
-    //coordinate_finder();
+    coordinate_finder();
     //trajectory_planner();
 }
