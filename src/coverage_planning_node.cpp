@@ -51,59 +51,114 @@ void trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* si
     vector<vector<float>> trajectory;
     vector<float> trajectory_coordinate;
     float slope1 = (side_coordinate2->coordinates_y-side_coordinate1->coordinates_y)/(side_coordinate2->coordinates_x-side_coordinate1->coordinates_x);
-    float C = side_coordinate1->coordinates_y-(slope1*side_coordinate1->coordinates_x);
+    float C;
+    if(!(1/slope1)){
+        C = side_coordinate1->coordinates_x;
+    }
+    else
+        C = side_coordinate1->coordinates_y-(slope1*side_coordinate1->coordinates_x);
     coordinates_node* prev_coordinate1 = side_coordinate1; 
     coordinates_node* next_coordinate1 = side_coordinate2;
     coordinates_node* prev_coordinate2 = side_coordinate1->prev;
     coordinates_node* next_coordinate2 = side_coordinate2->next;
+    cout<<"coordinates are"<<endl;
+    cout<<prev_coordinate2->coordinates_x<<","<<prev_coordinate2->coordinates_y<<endl;
+    cout<<prev_coordinate1->coordinates_x<<","<<prev_coordinate1->coordinates_y<<endl;
+    cout<<next_coordinate1->coordinates_x<<","<<next_coordinate1->coordinates_y<<endl;
+    cout<<next_coordinate2->coordinates_x<<","<<next_coordinate2->coordinates_y<<endl;
+
     float x= prev_coordinate1->coordinates_x, y = prev_coordinate1->coordinates_y, r = 0.5;
     trajectory_coordinate.push_back(x);
     trajectory_coordinate.push_back(y);
     trajectory.push_back(trajectory_coordinate);    
     int i = 0;  
-    while(prev_coordinate2->next!= next_coordinate2){
+    while(i<10 && prev_coordinate2->next!= next_coordinate2){
         if(i%2==0){
-            float slope2 = (next_coordinate2->coordinates_y-next_coordinate1->coordinates_y)/(next_coordinate2->coordinates_x-next_coordinate2->coordinates_x);
+            float slope2 = (next_coordinate2->coordinates_y-next_coordinate1->coordinates_y)/(next_coordinate2->coordinates_x-next_coordinate1->coordinates_x);
+            //cout<<"m here 1"<<"slope2 is"<<slope2<<"slope1 is"<<slope1<<endl;
             if(!(1/slope2)){
-                x  = next_coordinate1->coordinates_x;
+                //cout<<"m here"<<endl;
+                x = next_coordinate1->coordinates_x;
+                y = slope1*x+C;
             }
-            else
-            x = (slope2*next_coordinate1->coordinates_x+C-next_coordinate1->coordinates_y)/(slope2-slope1);
+            else if(!(1/slope1)){
+                //cout<<"m here 1"<<endl;
+                x = C;
+                y = (slope2*x) -(slope2*next_coordinate1->coordinates_x) + (next_coordinate1->coordinates_y);
+                //cout<<"values are"<<slope2*x<<"and"<<slope2*next_coordinate1->coordinates_x<<"and"<<next_coordinate1->coordinates_y;
+            }
+            else{
+                //cout<<"m here 2"<<endl;
+                x = (slope2*next_coordinate1->coordinates_x+C-next_coordinate1->coordinates_y)/(slope2-slope1);
+                y = slope1*x+C;
+            }
+                      
+            cout<<"1st is"<<"x is"<<x<<"y is"<<y<<endl;
         }
         else{
             float slope2 = (prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x);
+            cout<<"prev_coordinate1 is"<<prev_coordinate1->coordinates_x<<","<<prev_coordinate1->coordinates_y<<"prev_coordinate2 is"<<prev_coordinate2->coordinates_x<<","<<prev_coordinate2->coordinates_y<<endl;
+            cout<<"m here 2"<<"slope2 is"<<slope2<<"slope1 is"<<slope1<<endl;
             if(!(1/slope2)){
-                x  = prev_coordinate1->coordinates_x;
+                cout<<"m here"<<endl;
+                x = prev_coordinate1->coordinates_x;
+                y = slope1*x+C;
+            }
+            else if(!(1/slope1)){
+                cout<<"m here 1"<<endl;
+                x = C;
+                y = (slope2*x) -(slope2*prev_coordinate1->coordinates_x) + (prev_coordinate1->coordinates_y);
+                cout<<"values are"<<slope2*x<<"and"<<slope2*prev_coordinate1->coordinates_x<<"and"<<prev_coordinate1->coordinates_y<<endl;
+            }
+            else{
+                cout<<"m here 2"<<endl;
+                x = (slope2*prev_coordinate1->coordinates_x+C-next_coordinate1->coordinates_y)/(slope2-slope1);
+                y = slope1*x+C;
+            }          
+            cout<<"2nd is"<<"x is"<<x<<"y is"<<endl;
+        }
+        if(slope1<=1){
+            if(y>(prev_coordinate2->coordinates_y)){
+                prev_coordinate1 = prev_coordinate2;
+                prev_coordinate2 = prev_coordinate2->prev;
+                cout<<"M HERE NEHA"<<endl;
+            }
+            if(y>(next_coordinate2->coordinates_y)){
+                next_coordinate1 = next_coordinate2;
+                next_coordinate2 = next_coordinate2->next;
+                cout<<"M HERE NEHA1"<<endl;
             }
             else
-            x = (slope2*prev_coordinate1->coordinates_x+C-next_coordinate1->coordinates_y)/(slope2-slope1);
+            {
+                trajectory_coordinate[0] = x;
+                trajectory_coordinate[1] = y;
+                trajectory.push_back(trajectory_coordinate);
+            }
         }
-        y = slope1*x+C;
-        //cout<<"y coordinate of prev is"<<prev_coordinate2->coordinates_y<<endl;
-        if(y>(prev_coordinate2->coordinates_y)){
-            //cout<<"m here"<<endl;
-            prev_coordinate1 = prev_coordinate2;
-            prev_coordinate2 = prev_coordinate2->prev;
+        else{
+            if(x<(prev_coordinate2->coordinates_x)){
+                prev_coordinate1 = prev_coordinate2;
+                prev_coordinate2 = prev_coordinate2->prev;
+                cout<<"M HERE NEHA2"<<endl;
+            }
+            if(x<(next_coordinate2->coordinates_x)){
+                next_coordinate1 = next_coordinate2;
+                next_coordinate2 = next_coordinate2->next;
+                cout<<"M HERE NEHA3"<<endl;
+            }
+            else
+            {
+                trajectory_coordinate[0] = x;
+                trajectory_coordinate[1] = y;
+                trajectory.push_back(trajectory_coordinate);
+            }
         }
-        //cout<<"y coordinate of prev is"<<next_coordinate2->coordinates_y<<endl;
-        if(y>(next_coordinate2->coordinates_y)){
-            //cout<<"m here"<<endl;
-            next_coordinate1 = next_coordinate2;
-            next_coordinate2 = next_coordinate2->next;
-        }
-        else
-        {
-            trajectory_coordinate[0] = x;
-            trajectory_coordinate[1] = y;
-            trajectory.push_back(trajectory_coordinate);
-            //cout<<"x is"<<x<<"y is"<<y<<endl;
-        }
+            
         float theta =  atan(1/slope1);
         x = x + r*cos(theta);
         y = y + r*sin(theta);
         trajectory_coordinate[0] = x;
         trajectory_coordinate[1] = y;
-            //cout<<"x is"<<x<<"y is"<<y<<endl;
         trajectory.push_back(trajectory_coordinate);
         i++;
         C = C + r;
@@ -132,6 +187,8 @@ void coordinate_finder(){
         iterator = iterator->next;
     }
     trajectory_planner(side_coordinate1, side_coordinate2);
+    cout<<"coordinate side_coordinate1"<<side_coordinate1->coordinates_x <<","<<side_coordinate1->coordinates_y<<endl;
+    cout<<"coordinate side_coordinate2"<<side_coordinate2->coordinates_x <<","<<side_coordinate2->coordinates_y<<endl;
 
 }
 
