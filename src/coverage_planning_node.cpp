@@ -75,6 +75,7 @@ void trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* si
     trajectory.push_back(trajectory_coordinate);    
     int i = 0;  
     while(i<20 && prev_coordinate2->next!= next_coordinate2){
+        //main lines added in alternative fashion
         if(i%2==0){
             float slope2 = (next_coordinate2->coordinates_y-next_coordinate1->coordinates_y)/(next_coordinate2->coordinates_x-next_coordinate1->coordinates_x);
             //cout<<"m here 1"<<"slope2 is"<<slope2<<"slope1 is"<<slope1<<endl;
@@ -94,8 +95,58 @@ void trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* si
                 x = (slope2*next_coordinate1->coordinates_x+C-next_coordinate1->coordinates_y)/(slope2-slope1);
                 y = slope1*x+C;
             }
+            if(slope1<=1){
+                if(y>(next_coordinate2->coordinates_y)){
+                    next_coordinate1 = next_coordinate2;
+                    next_coordinate2 = next_coordinate2->next;
+                }
+                else{
+                    trajectory_coordinate[0] = x;
+                    trajectory_coordinate[1] = y;
+                    trajectory.push_back(trajectory_coordinate);
+                    //line perpendicular to base line    
+                    float theta =  atan(1/slope1);
+                    x = x + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*cos(theta);
+                    y = y + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*sin(theta);
+
+                    trajectory_coordinate[0] = x;
+                    trajectory_coordinate[1] = y;
+                    trajectory.push_back(trajectory_coordinate);
+                    i++;
+                    cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
+                }
+                cout<<"need to worry"<<endl;
+                C = C + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*(sqrt(1+slope1*slope1));
+            }
+            else{
+                if(x<(next_coordinate2->coordinates_x)){
+                        next_coordinate1 = next_coordinate2;
+                        next_coordinate2 = next_coordinate2->next;
+                    }
+                else{
+                        trajectory_coordinate[0] = x;
+                        trajectory_coordinate[1] = y;
+                        trajectory.push_back(trajectory_coordinate);
+                        //line perpendicular to base line    
+                        float theta =  atan(1/slope1);
+                        x = x + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*cos(theta);
+                        y = y + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*sin(theta);
+
+                        trajectory_coordinate[0] = x;
+                        trajectory_coordinate[1] = y;
+                        trajectory.push_back(trajectory_coordinate);
+                        i++;
+                        cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
+                    }
+                if(!(1/slope1))
+                    C = C + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r;
+                else
+                    C = C + -1*((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*(sqrt(1+slope1*slope1));
+                cout<<"NEED NOT TO WORRY"<<"C is"<<C<<"added value is"<<((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*sqrt(1+slope1*slope1)<<endl;
+
+            }
             cout<<"1st is"<<"x is"<<x<<"y is"<<y<<endl;                      
-        }
+            }
         else{
             float slope2 = (prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x);
             cout<<"prev_coordinate1 is"<<prev_coordinate1->coordinates_x<<","<<prev_coordinate1->coordinates_y<<"prev_coordinate2 is"<<prev_coordinate2->coordinates_x<<","<<prev_coordinate2->coordinates_y<<endl;
@@ -116,63 +167,59 @@ void trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* si
                 x = (slope2*prev_coordinate1->coordinates_x+C-prev_coordinate1->coordinates_y)/(slope2-slope1);
                 y = slope1*x+C;
             }          
-            cout<<"2nd is"<<"x is"<<x<<"y is"<<y<<"slope1 is"<<slope1<<"slope2 is"<<slope2<<endl;
-        }
-        if(slope1<=1){
-            if(y>(prev_coordinate2->coordinates_y)){
-                prev_coordinate1 = prev_coordinate2;
-                prev_coordinate2 = prev_coordinate2->prev;
-            }
-            if(y>(next_coordinate2->coordinates_y)){
-                next_coordinate1 = next_coordinate2;
-                next_coordinate2 = next_coordinate2->next;
+            if(slope1<=1){
+                if(y>(prev_coordinate2->coordinates_y)){
+                    prev_coordinate1 = prev_coordinate2;
+                    prev_coordinate2 = prev_coordinate2->prev;
+                }
+                else{
+                    trajectory_coordinate[0] = x;
+                    trajectory_coordinate[1] = y;
+                    trajectory.push_back(trajectory_coordinate);
+                    cout<<"2nd is"<<"x is"<<x<<"y is"<<y<<"slope1 is"<<slope1<<"slope2 is"<<slope2<<endl;
+                    //line perpendicular to base line    
+                    float theta =  atan(1/slope1);
+                    x = x + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*cos(theta);
+                    y = y + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*sin(theta);
+                    trajectory_coordinate[0] = x;
+                    trajectory_coordinate[1] = y;
+                    trajectory.push_back(trajectory_coordinate);
+                    i++;
+                    cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
+                }
+                cout<<"need to worry"<<endl;
+                C = C + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*(sqrt(1+slope1*slope1));
+
             }
             else{
-                trajectory_coordinate[0] = x;
-                trajectory_coordinate[1] = y;
-                trajectory.push_back(trajectory_coordinate);
+                if(x<(prev_coordinate2->coordinates_x)){
+                    prev_coordinate1 = prev_coordinate2;
+                    prev_coordinate2 = prev_coordinate2->prev;
+                }
+                else{
+                    trajectory_coordinate[0] = x;
+                    trajectory_coordinate[1] = y;
+                    trajectory.push_back(trajectory_coordinate);
+                    //line perpendicular to base line    
+                    float theta =  atan(1/slope1);
+                    x = x + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*cos(theta);
+                    y = y + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*sin(theta);
+                    trajectory_coordinate[0] = x;
+                    trajectory_coordinate[1] = y;
+                    trajectory.push_back(trajectory_coordinate);
+                    i++;
+                    cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
+                }
+                if(!(1/slope1))
+                    C = C + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r;
+                else
+                    C = C + -1*((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*(sqrt(1+slope1*slope1));
+                cout<<"NEED NOT TO WORRY"<<"C is"<<C<<"added value is"<<((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*sqrt(1+slope1*slope1)<<endl;
+
             }
-            cout<<"need to worry"<<endl;
-            C = C + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*(sqrt(1+slope1*slope1));
 
         }
-        else{
-            if(x<(prev_coordinate2->coordinates_x)){
-                prev_coordinate1 = prev_coordinate2;
-                prev_coordinate2 = prev_coordinate2->prev;
-            }
-            if(x<(next_coordinate2->coordinates_x)){
-                next_coordinate1 = next_coordinate2;
-                next_coordinate2 = next_coordinate2->next;
-            }
-            else{
-                trajectory_coordinate[0] = x;
-                trajectory_coordinate[1] = y;
-                trajectory.push_back(trajectory_coordinate);
-            }
-            if(!(1/slope1))
-                C = C + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r;
-            else
-                C = C + -1*((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*(sqrt(1+slope1*slope1));
-            cout<<"NEED NOT TO WORRY"<<"C is"<<C<<"added value is"<<((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*sqrt(1+slope1*slope1)<<endl;
 
-        }
-        //line perpendicular to base line    
-        float theta =  atan(1/slope1);
-        if(slope1<=1){
-            x = x + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*cos(theta);
-            y = y + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*sin(theta);
-        }
-        else{
-            x = x + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*cos(theta);
-            y = y + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*sin(theta);
-        }
-
-        trajectory_coordinate[0] = x;
-        trajectory_coordinate[1] = y;
-        trajectory.push_back(trajectory_coordinate);
-        i++;
-        cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
     }
     for (int i = 0; i < trajectory.size(); i++)
         {
