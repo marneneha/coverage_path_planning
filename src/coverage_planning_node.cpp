@@ -59,7 +59,7 @@ void trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* si
     }
     else
         C = side_coordinate1->coordinates_y-(slope1*side_coordinate1->coordinates_x);
-        cout<<"C is"<<C<<endl;
+    cout<<"C is"<<C<<endl;
     coordinates_node* prev_coordinate1 = side_coordinate1; 
     coordinates_node* next_coordinate1 = side_coordinate2;
     coordinates_node* prev_coordinate2 = side_coordinate1->prev;
@@ -133,7 +133,7 @@ void trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* si
                 trajectory.push_back(trajectory_coordinate);
             }
             cout<<"need to worry"<<endl;
-            C = C + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r;
+            C = C + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*(sqrt(1+slope1*slope1));
 
         }
         else{
@@ -153,7 +153,7 @@ void trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* si
             if(!(1/slope1))
                 C = C + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r;
             else
-                C = C + -1*((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r;
+                C = C + -1*((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*(sqrt(1+slope1*slope1));
             cout<<"NEED NOT TO WORRY"<<"C is"<<C<<"added value is"<<((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*sqrt(1+slope1*slope1)<<endl;
 
         }
