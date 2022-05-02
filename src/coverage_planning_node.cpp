@@ -1,21 +1,18 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <bits/stdc++.h>
+#include<coverage_planning_node.h>
+#include <pluginlib/class_list_macros.h>
 
-using namespace std;
-class coordinates_node{
-    public:
-    float coordinates_x;
-    float coordinates_y;
-    coordinates_node* next;
-    coordinates_node* prev;
-};
-coordinates_node* head = new coordinates_node();
-coordinates_node* temp1;
 //here assumed coordinates cant be 3d
 //look for memory deletion after use otherwise it will just keep adding to previous vector
-int read(){
+using namespace std;
+
+namespace ns_coverage_path_node{
+void coverage_planning_node_class::onInit() {
+		ros::NodeHandle nh = nodelet::Nodelet::getMTPrivateNodeHandle();
+        //advertise service or topic to publish 
+        coverage_planning_trajectory_service_client = nh.serviceClient<mrs_msgs::PathSrv>("/uav1/coverage_planning/path_to_follow");
+    }
+
+int coverage_planning_node_class::read(){
 
     string coverage_planning_area("/home/neha/coverage_planning_area.txt");
     float data;
@@ -43,13 +40,11 @@ int read(){
     }
     return 0;
 }
-
-float dist (float x1, float y1, float x2, float y2){
+float coverage_planning_node_class::dist (float x1, float y1, float x2, float y2){
     float dist_value = sqrt(pow((x1-x2), 2)+pow((y1-y2), 2));
     return dist_value;
 }
-
-void trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* side_coordinate2){
+void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* side_coordinate2){
     vector<vector<float>> trajectory;
     vector<float> trajectory_coordinate;
     float slope1 = (side_coordinate2->coordinates_y-side_coordinate1->coordinates_y)/(side_coordinate2->coordinates_x-side_coordinate1->coordinates_x);
@@ -221,19 +216,32 @@ void trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* si
         }
 
     }
+    mrs_msgs::PathSrv::Request              req;
+    mrs_msgs::PathSrv::Response             res;
     for (int i = 0; i < trajectory.size(); i++)
         {
-            cout<<trajectory[i][0]<<endl;
-        }    
-        cout<<"y coordinates are"<<endl;
-    for (int i = 0; i < trajectory.size(); i++)
-        {
-            cout<<trajectory[i][1]<<endl;
+            cout<<"x is"<<x<<trajectory[i][0]<<endl;
+            cout<<"y is"<<y<<trajectory[i][1]<<endl;
+            waypoint.position.x = x;
+            waypoint.position.y = y;
+            waypoint.position.z = 5;
+            waypoint.heading = 0;
+            req.path.points.push_back(waypoint);
         }
         trajectory.clear();
-}
+        req.path.header.seq = 0;
+        //req.path.header.time_stamp = ros::time.now();
+        req.path.header.frame_id = "latlon_origin";
+        req.path.use_heading = false;
+        req.path.fly_now = true;
+        req.path.stop_at_waypoints = false;
+        req.path.loop = true;
+        req.path.override_constraints = false;
+        req.path.relax_heading = true;
+        coverage_planning_trajectory_service_client.call(req, res);
 
-void coordinate_finder(){
+}
+void coverage_planning_node_class::coordinate_finder(){
     float side_max=0;
     coordinates_node* iterator = head;
     coordinates_node* side_coordinate1;
@@ -256,7 +264,9 @@ void coordinate_finder(){
 
 }
 
-int main(){
-    read();
-    coordinate_finder();
+    int coverage_planning_node_class::read();
+    void coverage_planning_node_class::coordinate_finder();
+
 }
+
+PLUGINLIB_EXPORT_CLASS(ns_coverage_path_node::coverage_planning_node_class, nodelet::Nodelet)

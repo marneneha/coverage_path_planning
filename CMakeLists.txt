@@ -9,8 +9,13 @@ project(coverage_planning)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  rospy
   std_msgs
+  mavros_msgs
+  mrs_msgs
+  nav_msgs
+  mrs_lib
+  geometry_msgs
+  nodelet
 )
 
 ## System dependencies are found with CMake's conventions
@@ -105,8 +110,8 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES coverage_planning
-  CATKIN_DEPENDS roscpp rospy std_msgs
-  DEPENDS system_lib
+  CATKIN_DEPENDS roscpp std_msgs mrs_lib mrs_msgs geometry_msgs nav_msgs message_runtime
+  #DEPENDS system_lib
 )
 
 ###########
@@ -116,13 +121,16 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+ include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
  add_library(${PROJECT_NAME}
    src/${PROJECT_NAME}_node.cpp
+   src/${PROJECT_NAME}_wrapper.cpp
+   include/coverage_planning_node.h
+   include/coverage_planning_wrapper.h
  )
 
 ## Add cmake target dependencies of the library
@@ -133,13 +141,13 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
- add_executable(${PROJECT_NAME}_node src/coverage_planning_node.cpp)
+ add_executable(${PROJECT_NAME}_node src/coverage_planning_node.cpp src/coverage_planning_wrapper.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
 ## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
- set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
+ set_target_properties(${PROJECT_NAME}_node  PROPERTIES OUTPUT_NAME node PREFIX "")
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -147,6 +155,7 @@ include_directories(
 
 ## Specify libraries to link a library or executable target against
  target_link_libraries(${PROJECT_NAME}_node
+   #${PROJECT_NAME}_wrapper
    ${catkin_LIBRARIES}
  )
 

@@ -1,0 +1,5 @@
+	<library path="lib/libucoverage_planning_wrapper">
+  <class name="coverage_planning/coverage_planning_wrapper" type="coverage_planning::coverage_planning_wrapper" base_class_type="nodelet::Nodelet">
+    <description>coverage_planning_wrapper nodelet</description>
+  </class>
+</library>

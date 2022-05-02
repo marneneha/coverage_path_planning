@@ -1,0 +1,44 @@
+<launch>
+
+  <arg name="custom_config" default="" />
+
+  <!-- defines name of the namespace of the drone -->
+  <arg name="UAV_NAME" default="$(env UAV_NAME)" />
+  <arg name="RUN_TYPE" default="$(env RUN_TYPE)" />
+
+
+
+  <!-- will it run using GNU debugger? -->
+  <arg name="DEBUG" default="true" />
+  <arg unless="$(arg DEBUG)" name="launch_prefix_debug" value=""/>
+  <arg     if="$(arg DEBUG)" name="launch_prefix_debug" value="debug_roslaunch"/>
+
+  <!-- set to false if the nodelet should run under an external nodelet manager -->
+  <arg name="standalone" default="true" />
+  <!-- will it run as standalone nodelet or using a nodelet manager? -->
+  <arg name="manager" default="$(arg UAV_NAME)_coverage_planning_manager" />
+  <arg     if="$(arg standalone)" name="nodelet" value="standalone"/>
+  <arg unless="$(arg standalone)" name="nodelet" value="load"/>
+  <arg     if="$(arg standalone)" name="nodelet_manager" value=""/>
+  <arg unless="$(arg standalone)" name="nodelet_manager" value="$(arg manager)"/>
+
+  <!-- Namespace - all topics and parameters will be remapped using this namespace as a prefix (eg.: "/vision_example/image_in" to "/uav1/vision_example/image_in") -->
+  <group ns="$(arg UAV_NAME)">
+
+    <!-- TrajectoryGenerator nodelet -->
+    <node pkg="nodelet" type="nodelet" name="coverage_planning" args="$(arg nodelet) coverage_planning/coverage_planning_node $(arg nodelet_manager)" launch-prefix="$(arg launch_prefix_debug)" output="screen">
+    <node pkg="nodelet" type="nodelet" name="coverage_planning" args="$(arg nodelet) coverage_planning/coverage_planning_wrapper $(arg nodelet_manager)" launch-prefix="$(arg launch_prefix_debug)" output="screen">
+
+
+      <!-- ROS parameters config file -->
+      <rosparam if="$(eval not arg('custom_config') == '')" file="$(arg custom_config)" />
+
+      <!-- Subscribers (note that the topic names will also be remapped using the namespace as a prefix) -->
+
+      <!-- Publishers (note that the topic names will also be remapped using the namespace as a prefix) -->
+
+    </node>
+
+  </group>
+
+</launch>
