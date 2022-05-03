@@ -1,4 +1,4 @@
-#include<coverage_planning_node.h>
+#include<coverage_planning_node_class.h>
 #include <pluginlib/class_list_macros.h>
 
 //here assumed coordinates cant be 3d
@@ -7,9 +7,14 @@ using namespace std;
 
 namespace ns_coverage_path_node{
 void coverage_planning_node_class::onInit() {
+        std::cout<<"INSIDE ONINIT"<<std::endl;
+
 		ros::NodeHandle nh = nodelet::Nodelet::getMTPrivateNodeHandle();
         //advertise service or topic to publish 
         coverage_planning_trajectory_service_client = nh.serviceClient<mrs_msgs::PathSrv>("/uav1/coverage_planning/path_to_follow");
+        coverage_planning_node_class::read();
+        coverage_planning_node_class::coordinate_finder();
+        ros::spin();
     }
 
 int coverage_planning_node_class::read(){
@@ -54,22 +59,22 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
     }
     else
         C = side_coordinate1->coordinates_y-(slope1*side_coordinate1->coordinates_x);
-    cout<<"C is"<<C<<endl;
+    //cout<<"C is"<<C<<endl;
     coordinates_node* prev_coordinate1 = side_coordinate1; 
     coordinates_node* next_coordinate1 = side_coordinate2;
     coordinates_node* prev_coordinate2 = side_coordinate1->prev;
     coordinates_node* next_coordinate2 = side_coordinate2->next;
     cout<<"prev_coordinate1 are"<<prev_coordinate1->coordinates_x<<","<<prev_coordinate1->coordinates_y<<endl;
-    cout<<"prev_coordinate2 are"<<prev_coordinate2->coordinates_x<<","<<prev_coordinate2->coordinates_y<<endl;
-    cout<<"next_coordinate1 are"<<next_coordinate1->coordinates_x<<","<<next_coordinate1->coordinates_y<<endl;
-    cout<<"next_coordinate1 are"<<next_coordinate2->coordinates_x<<","<<next_coordinate2->coordinates_y<<endl;
+    //cout<<"prev_coordinate2 are"<<prev_coordinate2->coordinates_x<<","<<prev_coordinate2->coordinates_y<<endl;
+    //cout<<"next_coordinate1 are"<<next_coordinate1->coordinates_x<<","<<next_coordinate1->coordinates_y<<endl;
+    //cout<<"next_coordinate1 are"<<next_coordinate2->coordinates_x<<","<<next_coordinate2->coordinates_y<<endl;
 
     float x= prev_coordinate1->coordinates_x, y = prev_coordinate1->coordinates_y, r = 0.5;
     trajectory_coordinate.push_back(x);
     trajectory_coordinate.push_back(y);
     trajectory.push_back(trajectory_coordinate);    
     int i = 0;  
-    while(i<20 && prev_coordinate2->next!= next_coordinate2){
+    while(i<10 && prev_coordinate2->next!= next_coordinate2){
         //main lines added in alternative fashion
         if(i%2==0){
             float slope2 = (next_coordinate2->coordinates_y-next_coordinate1->coordinates_y)/(next_coordinate2->coordinates_x-next_coordinate1->coordinates_x);
@@ -108,9 +113,9 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
                     trajectory_coordinate[1] = y;
                     trajectory.push_back(trajectory_coordinate);
                     i++;
-                    cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
+                    //cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
                 }
-                cout<<"need to worry"<<endl;
+                //cout<<"need to worry"<<endl;
                 C = C + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*(sqrt(1+slope1*slope1));
             }
             else{
@@ -131,34 +136,34 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
                         trajectory_coordinate[1] = y;
                         trajectory.push_back(trajectory_coordinate);
                         i++;
-                        cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
+                        //cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
                     }
                 if(!(1/slope1))
                     C = C + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r;
                 else
                     C = C + -1*((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*(sqrt(1+slope1*slope1));
-                cout<<"NEED NOT TO WORRY"<<"C is"<<C<<"added value is"<<((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*sqrt(1+slope1*slope1)<<endl;
+                //cout<<"NEED NOT TO WORRY"<<"C is"<<C<<"added value is"<<((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*sqrt(1+slope1*slope1)<<endl;
 
             }
-            cout<<"1st is"<<"x is"<<x<<"y is"<<y<<endl;                      
+            //cout<<"1st is"<<"x is"<<x<<"y is"<<y<<endl;                      
             }
         else{
             float slope2 = (prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x);
-            cout<<"prev_coordinate1 is"<<prev_coordinate1->coordinates_x<<","<<prev_coordinate1->coordinates_y<<"prev_coordinate2 is"<<prev_coordinate2->coordinates_x<<","<<prev_coordinate2->coordinates_y<<endl;
-            cout<<"m here 2"<<"slope2 is"<<slope2<<"slope1 is"<<slope1<<endl;
+            //cout<<"prev_coordinate1 is"<<prev_coordinate1->coordinates_x<<","<<prev_coordinate1->coordinates_y<<"prev_coordinate2 is"<<prev_coordinate2->coordinates_x<<","<<prev_coordinate2->coordinates_y<<endl;
+            //cout<<"m here 2"<<"slope2 is"<<slope2<<"slope1 is"<<slope1<<endl;
             if(!(1/slope2)){
-                cout<<"m here"<<endl;
+                //cout<<"m here"<<endl;
                 x = prev_coordinate1->coordinates_x;
                 y = slope1*x+C;
             }
             else if(!(1/slope1)){
-                cout<<"m here 1"<<endl;
+                //cout<<"m here 1"<<endl;
                 x = C;
                 y = (slope2*x) - (slope2*prev_coordinate1->coordinates_x) + (prev_coordinate1->coordinates_y);
-                cout<<"values are"<<slope2*x<<"and"<<slope2*prev_coordinate1->coordinates_x<<"and"<<prev_coordinate1->coordinates_y<<endl;
+                //cout<<"values are"<<slope2*x<<"and"<<slope2*prev_coordinate1->coordinates_x<<"and"<<prev_coordinate1->coordinates_y<<endl;
             }
             else{
-                cout<<"m here 2"<<endl;
+                //cout<<"m here 2"<<endl;
                 x = (slope2*prev_coordinate1->coordinates_x+C-prev_coordinate1->coordinates_y)/(slope2-slope1);
                 y = slope1*x+C;
             }          
@@ -171,7 +176,7 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
                     trajectory_coordinate[0] = x;
                     trajectory_coordinate[1] = y;
                     trajectory.push_back(trajectory_coordinate);
-                    cout<<"2nd is"<<"x is"<<x<<"y is"<<y<<"slope1 is"<<slope1<<"slope2 is"<<slope2<<endl;
+                    //cout<<"2nd is"<<"x is"<<x<<"y is"<<y<<"slope1 is"<<slope1<<"slope2 is"<<slope2<<endl;
                     //line perpendicular to base line    
                     float theta =  atan(1/slope1);
                     x = x + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*cos(theta);
@@ -180,9 +185,9 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
                     trajectory_coordinate[1] = y;
                     trajectory.push_back(trajectory_coordinate);
                     i++;
-                    cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
+                    //cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
                 }
-                cout<<"need to worry"<<endl;
+                //cout<<"need to worry"<<endl;
                 C = C + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*(sqrt(1+slope1*slope1));
 
             }
@@ -203,13 +208,13 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
                     trajectory_coordinate[1] = y;
                     trajectory.push_back(trajectory_coordinate);
                     i++;
-                    cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
+                    //cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
                 }
                 if(!(1/slope1))
                     C = C + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r;
                 else
                     C = C + -1*((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*(sqrt(1+slope1*slope1));
-                cout<<"NEED NOT TO WORRY"<<"C is"<<C<<"added value is"<<((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*sqrt(1+slope1*slope1)<<endl;
+                //cout<<"NEED NOT TO WORRY"<<"C is"<<C<<"added value is"<<((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*sqrt(1+slope1*slope1)<<endl;
 
             }
 
@@ -220,10 +225,9 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
     mrs_msgs::PathSrv::Response             res;
     for (int i = 0; i < trajectory.size(); i++)
         {
-            cout<<"x is"<<x<<trajectory[i][0]<<endl;
-            cout<<"y is"<<y<<trajectory[i][1]<<endl;
-            waypoint.position.x = x;
-            waypoint.position.y = y;
+            cout<<"x is"<<trajectory[i][0]<<"y is"<<trajectory[i][1]<<endl;
+            waypoint.position.x = trajectory[i][0];
+            waypoint.position.y = trajectory[i][1];
             waypoint.position.z = 5;
             waypoint.heading = 0;
             req.path.points.push_back(waypoint);
@@ -231,11 +235,11 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
         trajectory.clear();
         req.path.header.seq = 0;
         //req.path.header.time_stamp = ros::time.now();
-        req.path.header.frame_id = "latlon_origin";
+        req.path.header.frame_id = "gps_origin";
         req.path.use_heading = false;
         req.path.fly_now = true;
         req.path.stop_at_waypoints = false;
-        req.path.loop = true;
+        req.path.loop = false;
         req.path.override_constraints = false;
         req.path.relax_heading = true;
         coverage_planning_trajectory_service_client.call(req, res);
@@ -259,13 +263,12 @@ void coverage_planning_node_class::coordinate_finder(){
     while (iterator->next!=head);
 
     trajectory_planner(side_coordinate1, side_coordinate2);
-    cout<<"coordinate side_coordinate1"<<side_coordinate1->coordinates_x <<","<<side_coordinate1->coordinates_y<<endl;
-    cout<<"coordinate side_coordinate2"<<side_coordinate2->coordinates_x <<","<<side_coordinate2->coordinates_y<<endl;
+    //cout<<"coordinate side_coordinate1"<<side_coordinate1->coordinates_x <<","<<side_coordinate1->coordinates_y<<endl;
+    //cout<<"coordinate side_coordinate2"<<side_coordinate2->coordinates_x <<","<<side_coordinate2->coordinates_y<<endl;
 
 }
 
-    int coverage_planning_node_class::read();
-    void coverage_planning_node_class::coordinate_finder();
+
 
 }
 

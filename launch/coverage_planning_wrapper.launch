@@ -26,7 +26,7 @@
   <group ns="$(arg UAV_NAME)">
 
     <!-- TrajectoryGenerator nodelet -->
-    <node pkg="nodelet" type="nodelet" name="coverage_planning" args="$(arg nodelet) ns_coverage_path_node/coverage_planning_node_class $(arg nodelet_manager)" launch-prefix="$(arg launch_prefix_debug)" output="screen">
+    <node pkg="nodelet" type="nodelet" name="coverage_planning_wrapper" args="$(arg nodelet) ns_wrapper/coverage_planning_wrapper_class $(arg nodelet_manager)" launch-prefix="$(arg launch_prefix_debug)" output="screen">
 
 
       <!-- ROS parameters config file -->
