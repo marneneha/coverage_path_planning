@@ -19,7 +19,7 @@ MAIN_DIR=~/"bag_files"
 
 # the project name
 # * is used to define folder name in ~/$MAIN_DIR
-PROJECT_NAME=just_flying
+PROJECT_NAME=coverage_planning
 
 # the name of the TMUX session
 # * can be used for attaching as 'tmux a -t <session name>'
@@ -37,17 +37,15 @@ pre_input="mkdir -p $MAIN_DIR/$PROJECT_NAME"
 input=(
   'Rosbag' 'waitForOffboard; rosrun mrs_uav_general record.sh
 '
-  'Nimbro' 'waitForRos; roslaunch mrs_uav_general nimbro.launch
-'
   'Sensors' 'waitForRos; roslaunch mrs_uav_general sensors.launch
 '
   'Status' 'waitForRos; roslaunch mrs_uav_status status.launch
 '
   'Control' 'waitForRos; roslaunch mrs_uav_general core.launch
 '
-  'Coverage_planning' 'waitForRos; roslaunch Coverage_planning Coverage_planning.launch
+  'CP' 'waitForRos; sleep 10; roslaunch coverage_planning coverage_planning.launch
 '
-  'Coverage_planning' 'waitForRos; roslaunch Coverage_planning Coverage_planning_wrapper.launch
+  'CP_wrapper' 'waitForRos; roslaunch coverage_planning coverage_planning_wrapper.launch
 '
   'AutoStart' 'waitForRos; roslaunch mrs_uav_general automatic_start.launch
 '

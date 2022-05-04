@@ -31,8 +31,11 @@
 
       <!-- ROS parameters config file -->
       <param name= "coverage_planning_area" value="$(find coverage_planning)/coverage_planning_area.txt"/>
+      <param name= "uav_name" value="$(arg UAV_NAME)"/>
 
       <!-- Subscribers (note that the topic names will also be remapped using the namespace as a prefix) -->
+      <remap from="~path_to_follow" to="coverage_planning/path_to_follow" />
+
 
       <!-- Publishers (note that the topic names will also be remapped using the namespace as a prefix) -->
 

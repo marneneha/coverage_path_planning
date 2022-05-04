@@ -14,7 +14,7 @@ void coverage_planning_node_class::onInit() {
 	    param_loader.loadParam("coverage_planning_area", _coverage_planning_area_);
         //string _coverage_planning_area_ = nh.get_param("coverage_planning_area");
         //advertise service or topic to publish 
-        coverage_planning_trajectory_service_client = nh.serviceClient<mrs_msgs::PathSrv>("/uav1/coverage_planning/path_to_follow");
+        coverage_planning_trajectory_service_client = nh.serviceClient<mrs_msgs::PathSrv>("path_to_follow");
         coverage_planning_node_class::read();
         coverage_planning_node_class::coordinate_finder();
         ros::spin();
