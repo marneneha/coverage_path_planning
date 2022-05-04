@@ -10,6 +10,9 @@ void coverage_planning_node_class::onInit() {
         std::cout<<"INSIDE ONINIT"<<std::endl;
 
 		ros::NodeHandle nh = nodelet::Nodelet::getMTPrivateNodeHandle();
+        mrs_lib::ParamLoader param_loader(nh, "coverage_planning");
+	    param_loader.loadParam("coverage_planning_area", _coverage_planning_area_);
+        //string _coverage_planning_area_ = nh.get_param("coverage_planning_area");
         //advertise service or topic to publish 
         coverage_planning_trajectory_service_client = nh.serviceClient<mrs_msgs::PathSrv>("/uav1/coverage_planning/path_to_follow");
         coverage_planning_node_class::read();
@@ -19,7 +22,7 @@ void coverage_planning_node_class::onInit() {
 
 int coverage_planning_node_class::read(){
 
-    string coverage_planning_area("/home/neha/coverage_planning_area.txt");
+    string coverage_planning_area(_coverage_planning_area_);
     float data;
     ifstream coverage_planning_area_file(coverage_planning_area);
     
@@ -278,8 +281,6 @@ void coverage_planning_node_class::coordinate_finder(){
     //cout<<"coordinate side_coordinate2"<<side_coordinate2->coordinates_x <<","<<side_coordinate2->coordinates_y<<endl;
 
 }
-
-
 
 }
 

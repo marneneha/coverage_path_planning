@@ -30,7 +30,7 @@
 
 
       <!-- ROS parameters config file -->
-      <rosparam if="$(eval not arg('custom_config') == '')" file="$(arg custom_config)" />
+      <param name= "coverage_planning_area" value="$(find coverage_planning)/coverage_planning_area.txt"/>
 
       <!-- Subscribers (note that the topic names will also be remapped using the namespace as a prefix) -->
 

@@ -7,6 +7,7 @@
 #include <string>
 #include <bits/stdc++.h>
 #include <mrs_msgs/PathSrv.h>
+#include <mrs_lib/param_loader.h>
 
 namespace ns_coverage_path_node{
     class coverage_planning_node_class : public nodelet::Nodelet{
@@ -23,7 +24,7 @@ namespace ns_coverage_path_node{
         };
         coordinates_node*                       head = new coordinates_node();
         coordinates_node*                       temp1;
-
+        std::string                                  _coverage_planning_area_;
         mrs_msgs::Reference                     waypoint;           
         int read();
         void coordinate_finder();
