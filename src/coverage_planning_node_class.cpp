@@ -74,7 +74,7 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
     trajectory_coordinate.push_back(y);
     trajectory.push_back(trajectory_coordinate);    
     int i = 0;  
-    while(i<10 && prev_coordinate2->next!= next_coordinate2){
+    while(i<20 && prev_coordinate2->next!= next_coordinate2){
         //main lines added in alternative fashion
         if(i%2==0){
             float slope2 = (next_coordinate2->coordinates_y-next_coordinate1->coordinates_y)/(next_coordinate2->coordinates_x-next_coordinate1->coordinates_x);
@@ -101,17 +101,21 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
                     next_coordinate2 = next_coordinate2->next;
                 }
                 else{
-                    trajectory_coordinate[0] = x;
-                    trajectory_coordinate[1] = y;
-                    trajectory.push_back(trajectory_coordinate);
+                    if(x<100 &&y< 100){
+                        trajectory_coordinate[0] = x;
+                        trajectory_coordinate[1] = y;
+                        trajectory.push_back(trajectory_coordinate);
+                    }
                     //line perpendicular to base line    
                     float theta =  atan(1/slope1);
                     x = x + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*cos(theta);
                     y = y + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*sin(theta);
 
-                    trajectory_coordinate[0] = x;
-                    trajectory_coordinate[1] = y;
-                    trajectory.push_back(trajectory_coordinate);
+                    if(x<100 &&y< 100){
+                        trajectory_coordinate[0] = x;
+                        trajectory_coordinate[1] = y;
+                        trajectory.push_back(trajectory_coordinate);
+                    }
                     i++;
                     //cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
                 }
@@ -124,18 +128,21 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
                         next_coordinate2 = next_coordinate2->next;
                     }
                 else{
+                    if(x<100 &&y< 100){
                         trajectory_coordinate[0] = x;
                         trajectory_coordinate[1] = y;
                         trajectory.push_back(trajectory_coordinate);
+                    }
                         //line perpendicular to base line    
                         float theta =  atan(1/slope1);
                         x = x + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*cos(theta);
                         y = y + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*sin(theta);
 
+                    if(x<100 &&y< 100){
                         trajectory_coordinate[0] = x;
                         trajectory_coordinate[1] = y;
                         trajectory.push_back(trajectory_coordinate);
-                        i++;
+                    }                        i++;
                         //cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
                     }
                 if(!(1/slope1))
@@ -173,18 +180,20 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
                     prev_coordinate2 = prev_coordinate2->prev;
                 }
                 else{
-                    trajectory_coordinate[0] = x;
-                    trajectory_coordinate[1] = y;
-                    trajectory.push_back(trajectory_coordinate);
-                    //cout<<"2nd is"<<"x is"<<x<<"y is"<<y<<"slope1 is"<<slope1<<"slope2 is"<<slope2<<endl;
+                    if(x<100 &&y< 100){
+                        trajectory_coordinate[0] = x;
+                        trajectory_coordinate[1] = y;
+                        trajectory.push_back(trajectory_coordinate);
+                    }                    //cout<<"2nd is"<<"x is"<<x<<"y is"<<y<<"slope1 is"<<slope1<<"slope2 is"<<slope2<<endl;
                     //line perpendicular to base line    
                     float theta =  atan(1/slope1);
                     x = x + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*cos(theta);
                     y = y + ((prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/abs(prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y))*r*sin(theta);
-                    trajectory_coordinate[0] = x;
-                    trajectory_coordinate[1] = y;
-                    trajectory.push_back(trajectory_coordinate);
-                    i++;
+                    if(x<100 &&y< 100){
+                        trajectory_coordinate[0] = x;
+                        trajectory_coordinate[1] = y;
+                        trajectory.push_back(trajectory_coordinate);
+                    }                    i++;
                     //cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
                 }
                 //cout<<"need to worry"<<endl;
@@ -197,17 +206,19 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
                     prev_coordinate2 = prev_coordinate2->prev;
                 }
                 else{
-                    trajectory_coordinate[0] = x;
-                    trajectory_coordinate[1] = y;
-                    trajectory.push_back(trajectory_coordinate);
-                    //line perpendicular to base line    
+                    if(x<100 &&y< 100){
+                        trajectory_coordinate[0] = x;
+                        trajectory_coordinate[1] = y;
+                        trajectory.push_back(trajectory_coordinate);
+                    }                    //line perpendicular to base line    
                     float theta =  atan(1/slope1);
                     x = x + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*cos(theta);
                     y = y + ((prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x)/abs(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x))*r*sin(theta);
-                    trajectory_coordinate[0] = x;
-                    trajectory_coordinate[1] = y;
-                    trajectory.push_back(trajectory_coordinate);
-                    i++;
+                    if(x<100 &&y< 100){
+                        trajectory_coordinate[0] = x;
+                        trajectory_coordinate[1] = y;
+                        trajectory.push_back(trajectory_coordinate);
+                    }                    i++;
                     //cout<<"after perpendicular extension x is"<<x<<"y is"<<y<<endl;
                 }
                 if(!(1/slope1))
