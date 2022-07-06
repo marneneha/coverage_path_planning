@@ -69,10 +69,7 @@ void coverage_planning_node_class::coordinate_finder(){
     //cout<<"coordinate side_coordinate2"<<side_coordinate2->coordinates_x <<","<<side_coordinate2->coordinates_y<<endl;
 
 }
-//recursive function of polygon to calculate brustophedon division and swapping trajectory
-void coverage_planning_node_class::brustophedon(){
-      
-}
+
 void coverage_planning_node_class::trajectory_planner(){
     vector<vector<float>> trajectory;
     vector<float> trajectory_coordinate;
@@ -97,4 +94,4 @@ void coverage_planning_node_class::trajectory_planner(){
     }
 }
 //transform trajectory in the world frame back
-PLUGINLIB_EXPORT_CLASS(ns_coverage_path_node::coverage_planning_node_class, nodelet::Nodelet)
+PLUGINLIB_EXPORT_CLASS(ns_coverage_path_node::coverage_planning_node_class, nodelet::Nodelet)?

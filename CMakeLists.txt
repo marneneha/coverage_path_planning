@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   mrs_lib
   geometry_msgs
   nodelet
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -59,11 +60,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files( 
+  FILES
+  CPPServiceCall.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -73,10 +73,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -110,7 +110,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES coverage_planning
-  CATKIN_DEPENDS roscpp std_msgs mrs_lib mrs_msgs geometry_msgs nav_msgs message_runtime
+  CATKIN_DEPENDS roscpp std_msgs mrs_lib mrs_msgs geometry_msgs nav_msgs message_runtime 
   #DEPENDS system_lib
 )
 
@@ -126,11 +126,14 @@ include_directories(
 )
 
 ## Declare a C++ library
- add_library(${PROJECT_NAME}_node_class
-   src/${PROJECT_NAME}_node_class.cpp
- )
- add_library(${PROJECT_NAME}_wrapper
- src/${PROJECT_NAME}_wrapper.cpp
+#  add_library(${PROJECT_NAME}_node_class
+#    src/${PROJECT_NAME}_node_class.cpp
+#  )
+#  add_library(${PROJECT_NAME}_wrapper
+#  src/${PROJECT_NAME}_wrapper.cpp
+# )
+add_library(boustrophedon_with_TSP
+src/boustrophedon_with_TSP.cpp
 )
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -153,12 +156,15 @@ include_directories(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
- target_link_libraries(${PROJECT_NAME}_wrapper
-   ${catkin_LIBRARIES}
- )
- target_link_libraries(${PROJECT_NAME}_node_class
-   ${catkin_LIBRARIES}
- )
+#  target_link_libraries(${PROJECT_NAME}_wrapper
+#    ${catkin_LIBRARIES}
+#  )
+#  target_link_libraries(${PROJECT_NAME}_node_class
+#    ${catkin_LIBRARIES}
+#  )
+ target_link_libraries(boustrophedon_with_TSP
+ ${catkin_LIBRARIES}
+)
 #############
 ## Install ##
 #############

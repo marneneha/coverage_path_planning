@@ -8,3 +8,8 @@
     <description>coverage_planning_wrapper nodelet</description>
   </class>
 </library>
+<library path="lib/libboustrophedon_with_TSP">
+    <class name="ns_boustrophedon/coverage_planning_node_class" type="ns_boustrophedon::coverage_planning_node_class" base_class_type="nodelet::Nodelet">
+    <description>boustrophedon_with_TSP nodelet</description>
+  </class>
+</library>

@@ -7,21 +7,20 @@ using namespace std;
 
 namespace ns_coverage_path_node{
 void coverage_planning_node_class::onInit() {
-        std::cout<<"INSIDE ONINIT"<<std::endl;
+    std::cout<<"INSIDE ONINIT"<<std::endl;
 
-		ros::NodeHandle nh = nodelet::Nodelet::getMTPrivateNodeHandle();
-        mrs_lib::ParamLoader param_loader(nh, "coverage_planning");
-	    param_loader.loadParam("coverage_planning_area", _coverage_planning_area_);
+	ros::NodeHandle nh = nodelet::Nodelet::getMTPrivateNodeHandle();
+    mrs_lib::ParamLoader param_loader(nh, "coverage_planning");
+	param_loader.loadParam("coverage_planning_area", _coverage_planning_area_);
         //string _coverage_planning_area_ = nh.get_param("coverage_planning_area");
         //advertise service or topic to publish 
-        coverage_planning_trajectory_service_client = nh.serviceClient<mrs_msgs::PathSrv>("path_to_follow");
-        coverage_planning_node_class::read();
-        coverage_planning_node_class::coordinate_finder();
-        ros::spin();
-    }
+    coverage_planning_trajectory_service_client = nh.serviceClient<mrs_msgs::PathSrv>("path_to_follow");
+    coverage_planning_node_class::read();
+    coverage_planning_node_class::coordinate_finder();
+    ros::spin();
+}
 
 int coverage_planning_node_class::read(){
-
     string coverage_planning_area(_coverage_planning_area_);
     float data;
     ifstream coverage_planning_area_file(coverage_planning_area);
@@ -48,10 +47,10 @@ int coverage_planning_node_class::read(){
     }
     return 0;
 }
-float coverage_planning_node_class::dist (float x1, float y1, float x2, float y2){
-    float dist_value = sqrt(pow((x1-x2), 2)+pow((y1-y2), 2));
-    return dist_value;
-}
+// float coverage_planning_node_class::dist (float x1, float y1, float x2, float y2){
+//     float dist_value = sqrt(pow((x1-x2), 2)+pow((y1-y2), 2));
+//     return dist_value;
+// }
 void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* side_coordinate2){
     vector<vector<float>> trajectory;
     vector<float> trajectory_coordinate;
@@ -264,7 +263,7 @@ void coverage_planning_node_class::coordinate_finder(){
     coordinates_node* iterator = head;
     coordinates_node* side_coordinate1;
     coordinates_node* side_coordinate2;
-    float side_length = dist(iterator->coordinates_x, iterator->coordinates_y, (iterator->next)->coordinates_x, (iterator->next)->coordinates_y);
+    float side_length = dist(iterator, (iterator->next));
     do
     {
         iterator = iterator->next;

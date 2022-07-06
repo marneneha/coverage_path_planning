@@ -6,8 +6,6 @@
   <arg name="UAV_NAME" default="$(env UAV_NAME)" />
   <arg name="RUN_TYPE" default="$(env RUN_TYPE)" />
 
-
-
   <!-- will it run using GNU debugger? -->
   <arg name="DEBUG" default="false" />
   <arg unless="$(arg DEBUG)" name="launch_prefix_debug" value=""/>
