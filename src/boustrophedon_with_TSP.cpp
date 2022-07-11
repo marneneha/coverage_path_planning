@@ -65,10 +65,9 @@ int coverage_planning_node_class::concavity_indentifier(){
     float product;
     do{
         product = (next_coordinate->coordinates_x- mid_coordinate->coordinates_x) * (mid_coordinate->coordinates_x - prev_coordinate->coordinates_x);
-        std::cout<<"point is"<<mid_coordinate->coordinates_x<<","<<mid_coordinate->coordinates_y<<"product is"<<product<<"\n"<<std::endl; 
+        // std::cout<<"point is"<<mid_coordinate->coordinates_x<<","<<mid_coordinate->coordinates_y<<"product is"<<product<<"\n"<<std::endl; 
         //judge onthe basis of angle greater than 180 or not 
         if(product < 0 && (mid_coordinate->coordinates_x - prev_coordinate->coordinates_x) <0 ){
-            ROS_INFO("m here");
             concave_points.push_back(mid_coordinate);
         }
         prev_coordinate = prev_coordinate->next;
@@ -110,34 +109,25 @@ void coverage_planning_node_class::boustrophedon_area_division(coordinates_node*
         ROS_ERROR("[CPP] :  sorting was not successfull");
         return;
     }
-    // for(int i = 0; i<concave_points.size(); i++){
-    //     std::cout<<concave_points.begin()<<std::endl;
-    // }
-                std::cout<<"m here1"<<std::endl;
-                std::cout<<concave_points.begin()<<std::endl;
+
+    concave_points_iterator = concave_points.begin();
     concave_points.erase(concave_points_iterator);
     int i = 0;
-                std::cout<<"m here2"<<std::endl;
-        // std::cout<<"next_coordinate1 is"<<next_coordinate1->coordinates_x<<","<<next_coordinate1->coordinates_y<<"\n"<<std::endl;  
-        // std::cout<<"next_coordinate2 is"<<next_coordinate2->coordinates_x<<","<<next_coordinate2->coordinates_y<<"\n"<<std::endl;  
-        // std::cout<<"prev_coordinate1 is"<<prev_coordinate1->coordinates_x<<","<<prev_coordinate1->coordinates_y<<"\n"<<std::endl;  
-        // std::cout<<"prev_coordinate2 is"<<prev_coordinate2->coordinates_x<<","<<prev_coordinate2->coordinates_y<<"\n"<<std::endl; 
+        std::cout<<"next_coordinate1 is"<<next_coordinate1->coordinates_x<<","<<next_coordinate1->coordinates_y<<"\n"<<std::endl;  
+        std::cout<<"next_coordinate2 is"<<next_coordinate2->coordinates_x<<","<<next_coordinate2->coordinates_y<<"\n"<<std::endl;  
+        std::cout<<"prev_coordinate1 is"<<prev_coordinate1->coordinates_x<<","<<prev_coordinate1->coordinates_y<<"\n"<<std::endl;  
+        std::cout<<"prev_coordinate2 is"<<prev_coordinate2->coordinates_x<<","<<prev_coordinate2->coordinates_y<<"\n"<<std::endl; 
         
         //should not hard code 
-    coordinates_node* concave_point = concave_points[1];
-                std::cout<<"m here3"<<std::endl;
     float x, y;
-    std::vector<area_node*> divided_area;
-                std::cout<<"m here4"<<std::endl;
     area_node* temp_area_node = new area_node();
-                std::cout<<"m here5"<<std::endl;
     float slope1, slope2;
-     do{
-                std::cout<<"m here6"<<std::endl;
         for(int i=0; i<concave_points.size(); i++){
-            x = concave_points[i]->coordinates_x;
-            y = concave_points[i]->coordinates_y;
-            if(((x<next_coordinate2->coordinates_x)&&(x>next_coordinate1->coordinates_x))&& ((x<prev_coordinate2->coordinates_x)&&(x>prev_coordinate1->coordinates_x))){
+            concave_point = concave_points[1];
+            x = concave_point->coordinates_x;
+            y = concave_point->coordinates_y;
+            do{
+                if(((x<next_coordinate2->coordinates_x)&&(x>next_coordinate1->coordinates_x))&& ((x<prev_coordinate2->coordinates_x)&&(x>prev_coordinate1->coordinates_x))){
                 //area division
                 if(((y<next_coordinate2->coordinates_y)||(y<next_coordinate1->coordinates_y))&& ((y>prev_coordinate2->coordinates_y)||(y>prev_coordinate1->coordinates_y))){
                     slope1 = (next_coordinate2->coordinates_y-next_coordinate1->coordinates_y)/(next_coordinate2->coordinates_x-next_coordinate1->coordinates_x);
@@ -154,46 +144,46 @@ void coverage_planning_node_class::boustrophedon_area_division(coordinates_node*
                     temp_area_node->next_coordinate2 = next_intermidiate_coordinate;
                     divided_area.push_back(temp_area_node);
                     // concave_points.erase(concave_points_iterator+i);
+                    boustrophedon_area_division(next_intermidiate_coordinate, next_coordinate2, concave_point, concave_point->prev);
+                    boustrophedon_area_division(concave_point, concave_point->next, prev_intermidiate_coordinate, prev_coordinate2);
+                    break;
                 }
-                boustrophedon_area_division(next_intermidiate_coordinate, next_coordinate2, concave_point, concave_point->next);
-                boustrophedon_area_division(concave_point, concave_point->prev, prev_intermidiate_coordinate, prev_coordinate2);
-                i++;
-                x = concave_points[i]->coordinates_x;
-        }
-            else if((x<next_coordinate2->coordinates_x)&&(x>next_coordinate1->coordinates_x)){
-            prev_coordinate1 = prev_coordinate1->prev;
-            prev_coordinate2 = prev_coordinate2->prev;
-            concavity = true;
-    ROS_INFO("i here2");
-        }
-            else if((x<prev_coordinate2->coordinates_x)&&(x>prev_coordinate1->coordinates_x)){
-            next_coordinate1 = next_coordinate1->next;
-            next_coordinate2 = next_coordinate2->next;
-            concavity = true;
-    ROS_INFO("i here3");
-        }
+                else{
+                    prev_coordinate1 = prev_coordinate1->prev;
+                    prev_coordinate2 = prev_coordinate2->prev;
+                    next_coordinate1 = next_coordinate1->next;
+                    next_coordinate2 = next_coordinate2->next;
+                }// i++;
+                // x = concave_points[i]->coordinates_x;
+                }
+                else if((x<next_coordinate2->coordinates_x)&&(x>next_coordinate1->coordinates_x)){
+                prev_coordinate1 = prev_coordinate1->prev;
+                prev_coordinate2 = prev_coordinate2->prev;
+                concavity = true;
+        ROS_INFO("i here2");
             }
+                else if((x<prev_coordinate2->coordinates_x)&&(x>prev_coordinate1->coordinates_x)){
+                next_coordinate1 = next_coordinate1->next;
+                next_coordinate2 = next_coordinate2->next;
+                }
+                else{
+                    prev_coordinate1 = prev_coordinate1->prev;
+                    prev_coordinate2 = prev_coordinate2->prev;
+                    next_coordinate1 = next_coordinate1->next;
+                    next_coordinate2 = next_coordinate2->next;
+                }    
+                concavity = true;
+            }
+            while (prev_coordinate2->next!= next_coordinate2);
+        }
             //improve
-            prev_coordinate1 = prev_coordinate1->prev;
-            prev_coordinate2 = prev_coordinate2->prev;
-            next_coordinate1 = next_coordinate1->next;
-            next_coordinate2 = next_coordinate2->next;
-            concavity = true;
             ROS_INFO("i here4");
-    }
-    while(concave_points[i] != concave_points[1]);
         //last two areas to be added
-                std::cout<<"m here"<<std::endl;
-        temp_area_node->prev_coordinate1 = concave_point;
-        temp_area_node->prev_coordinate2 = concave_point->next;
-        temp_area_node->next_coordinate1 = next_intermidiate_coordinate;
-        temp_area_node->next_coordinate2 = next_coordinate2;
-        divided_area.push_back(temp_area_node);    
-        temp_area_node->prev_coordinate1 = prev_intermidiate_coordinate;
+        temp_area_node->prev_coordinate1 = prev_coordinate1;
         temp_area_node->prev_coordinate2 = prev_coordinate2;
-        temp_area_node->next_coordinate1 = concave_point;
-        temp_area_node->next_coordinate2 = concave_point->prev;
-        divided_area.push_back(temp_area_node);      
+        temp_area_node->next_coordinate1 = next_coordinate1;
+        temp_area_node->next_coordinate2 = next_coordinate2;
+        divided_area.push_back(temp_area_node);         
         area_division_type = true;
     ROS_INFO("[CPP] : list of boustrophedon_area points are");
     for(int i = 0; i<divided_area.size(); i++){
@@ -202,7 +192,7 @@ void coverage_planning_node_class::boustrophedon_area_division(coordinates_node*
         std::cout<<divided_area[i]->next_coordinate1->coordinates_x<<","<<divided_area[i]->next_coordinate1->coordinates_y<<" "<<std::endl;  
         std::cout<<divided_area[i]->next_coordinate2->coordinates_x<<","<<divided_area[i]->next_coordinate2->coordinates_y<<" "<<std::endl;  
     }
-    coverage_planning_node_class::boustrophedon_matrix();
+    // coverage_planning_node_class::boustrophedon_matrix();
 }
 void coverage_planning_node_class::boustrophedon_matrix(){
     if(!area_division_type){

@@ -41,7 +41,7 @@ namespace ns_boustrophedon{
         coordinates_node*                       next_coordinate2;
         coordinates_node*                       prev_intermidiate_coordinate = new coordinates_node();
         coordinates_node*                       next_intermidiate_coordinate = new coordinates_node();
-
+        coordinates_node*                       concave_point;
         bool                                    file_read = false;
         bool                                    sorting_status = false;
         bool                                    area_division_type = false;
@@ -50,7 +50,7 @@ namespace ns_boustrophedon{
         float                                   sweeping_dist;
         mrs_msgs::Reference                     waypoint;
         std::vector <coordinates_node*>         concave_points;
-        std::vector <coordinates_node*>::iterator concave_points_iterator = concave_points.begin();
+        std::vector <coordinates_node*>::iterator concave_points_iterator;
         bool read(coverage_planning::CPPServiceCall::Request& req, coverage_planning::CPPServiceCall::Response& res);
         void coordinate_finder();
         int concavity_indentifier();
