@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <bits/stdc++.h>
 #include <mrs_msgs/PathSrv.h>
 #include <mrs_lib/param_loader.h>
@@ -49,6 +50,7 @@ namespace ns_boustrophedon{
         float                                   sweeping_dist;
         mrs_msgs::Reference                     waypoint;
         std::vector <coordinates_node*>         concave_points;
+        std::vector <coordinates_node*>::iterator concave_points_iterator = concave_points.begin();
         bool read(coverage_planning::CPPServiceCall::Request& req, coverage_planning::CPPServiceCall::Response& res);
         void coordinate_finder();
         int concavity_indentifier();
