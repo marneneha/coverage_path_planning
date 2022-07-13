@@ -102,88 +102,151 @@ void coverage_planning_node_class::sorting(std::vector <coordinates_node*>& conc
         std::cout<<concave_points[i]->coordinates_x<<","<<concave_points[i]->coordinates_y<<std::endl;  
     }
     sorting_status = true;
-    boustrophedon_area_division(concave_points[0], concave_points[0]->next, concave_points[0], concave_points[0]->prev);
+    concave_point = concave_points[0];
+    concave_points_iterator = concave_points.begin();
+    concave_points.erase(concave_points_iterator);
+    boustrophedon_area_division(concave_point, concave_point->next, concave_point, concave_point->prev);
 }
-void coverage_planning_node_class::boustrophedon_area_division(coordinates_node* next_coordinate1, coordinates_node* next_coordinate2, coordinates_node* prev_coordinate1, coordinates_node* prev_coordinate2){
+void coverage_planning_node_class::boustrophedon_area_division(coordinates_node* next_coordinate1_orig, coordinates_node* next_coordinate2_orig, coordinates_node* prev_coordinate1_orig, coordinates_node* prev_coordinate2_orig){
     if(!sorting_status){
         ROS_ERROR("[CPP] :  sorting was not successfull");
         return;
     }
 
-    concave_points_iterator = concave_points.begin();
-    concave_points.erase(concave_points_iterator);
-    int i = 0;
-        std::cout<<"next_coordinate1 is"<<next_coordinate1->coordinates_x<<","<<next_coordinate1->coordinates_y<<"\n"<<std::endl;  
-        std::cout<<"next_coordinate2 is"<<next_coordinate2->coordinates_x<<","<<next_coordinate2->coordinates_y<<"\n"<<std::endl;  
-        std::cout<<"prev_coordinate1 is"<<prev_coordinate1->coordinates_x<<","<<prev_coordinate1->coordinates_y<<"\n"<<std::endl;  
-        std::cout<<"prev_coordinate2 is"<<prev_coordinate2->coordinates_x<<","<<prev_coordinate2->coordinates_y<<"\n"<<std::endl; 
-        
+        int i = 0;
+       
         //should not hard code 
-    float x, y;
+    float x, y, slope1, slope2;
     area_node* temp_area_node = new area_node();
-    float slope1, slope2;
         for(int i=0; i<concave_points.size(); i++){
-            concave_point = concave_points[1];
+            concave_point = concave_points[i];
             x = concave_point->coordinates_x;
             y = concave_point->coordinates_y;
-            do{
+            prev_coordinate1 = prev_coordinate1_orig;
+            prev_coordinate2 = prev_coordinate2_orig;
+            next_coordinate1 = next_coordinate1_orig;
+            next_coordinate2 = next_coordinate2_orig;
+            ROS_ERROR("[CPP] : at the start of do-while loop");
+            std::cout<<"next_coordinate1_orig is"<<next_coordinate1_orig->coordinates_x<<","<<next_coordinate1_orig->coordinates_y<<"\n"<<std::endl;  
+            std::cout<<"next_coordinate2_orig is"<<next_coordinate2_orig->coordinates_x<<","<<next_coordinate2_orig->coordinates_y<<"\n"<<std::endl;  
+            std::cout<<"prev_coordinate1_orig is"<<prev_coordinate1_orig->coordinates_x<<","<<prev_coordinate1_orig->coordinates_y<<"\n"<<std::endl;  
+            std::cout<<"prev_coordinate2_orig is"<<prev_coordinate2_orig->coordinates_x<<","<<prev_coordinate2_orig->coordinates_y<<"\n"<<std::endl;
+            for(int i = 0; i<divided_area.size(); i++){
+                std::cout<<divided_area[i]->prev_coordinate1->coordinates_x<<","<<divided_area[i]->prev_coordinate1->coordinates_y<<" "<<std::endl;  
+                std::cout<<divided_area[i]->prev_coordinate2->coordinates_x<<","<<divided_area[i]->prev_coordinate2->coordinates_y<<" "<<std::endl;  
+                std::cout<<divided_area[i]->next_coordinate1->coordinates_x<<","<<divided_area[i]->next_coordinate1->coordinates_y<<" "<<std::endl;  
+                std::cout<<divided_area[i]->next_coordinate2->coordinates_x<<","<<divided_area[i]->next_coordinate2->coordinates_y<<" "<<std::endl;  
+            }  
+                do{
+                std::cout<<"next_coordinate1 is"<<next_coordinate1->coordinates_x<<","<<next_coordinate1->coordinates_y<<"\n"<<std::endl;  
+                std::cout<<"next_coordinate2 is"<<next_coordinate2->coordinates_x<<","<<next_coordinate2->coordinates_y<<"\n"<<std::endl;  
+                std::cout<<"prev_coordinate1 is"<<prev_coordinate1->coordinates_x<<","<<prev_coordinate1->coordinates_y<<"\n"<<std::endl;  
+                std::cout<<"prev_coordinate2 is"<<prev_coordinate2->coordinates_x<<","<<prev_coordinate2->coordinates_y<<"\n"<<std::endl;
+                std::cout<<"x is"<<x<<"y is"<<y<<std::endl; 
                 if(((x<next_coordinate2->coordinates_x)&&(x>next_coordinate1->coordinates_x))&& ((x<prev_coordinate2->coordinates_x)&&(x>prev_coordinate1->coordinates_x))){
-                //area division
-                if(((y<next_coordinate2->coordinates_y)||(y<next_coordinate1->coordinates_y))&& ((y>prev_coordinate2->coordinates_y)||(y>prev_coordinate1->coordinates_y))){
-                    slope1 = (next_coordinate2->coordinates_y-next_coordinate1->coordinates_y)/(next_coordinate2->coordinates_x-next_coordinate1->coordinates_x);
-                    slope2 = (prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x);
-                    next_intermidiate_coordinate->coordinates_y = slope1*x + next_coordinate1->coordinates_y - slope1*next_coordinate1->coordinates_x;
-                    prev_intermidiate_coordinate->coordinates_y = slope2*x + prev_coordinate1->coordinates_y - slope2*prev_coordinate1->coordinates_x;
-                    prev_intermidiate_coordinate->coordinates_x = x;
-                    next_intermidiate_coordinate->coordinates_x = x;
-                    std::cout<<"prev_intermidiate_coordinate is"<<prev_intermidiate_coordinate->coordinates_x<<","<<prev_intermidiate_coordinate->coordinates_y<<"\n"<<std::endl;  
-                    std::cout<<"next_intermidiate_coordinate is"<<next_intermidiate_coordinate->coordinates_x<<","<<next_intermidiate_coordinate->coordinates_y<<"\n"<<std::endl;  
-                    temp_area_node->prev_coordinate1 = prev_coordinate1;
-                    temp_area_node->prev_coordinate2 = prev_intermidiate_coordinate;
-                    temp_area_node->next_coordinate1 = next_coordinate1;
-                    temp_area_node->next_coordinate2 = next_intermidiate_coordinate;
-                    divided_area.push_back(temp_area_node);
-                    // concave_points.erase(concave_points_iterator+i);
-                    boustrophedon_area_division(next_intermidiate_coordinate, next_coordinate2, concave_point, concave_point->prev);
-                    boustrophedon_area_division(concave_point, concave_point->next, prev_intermidiate_coordinate, prev_coordinate2);
-                    break;
-                }
-                else{
-                    prev_coordinate1 = prev_coordinate1->prev;
-                    prev_coordinate2 = prev_coordinate2->prev;
-                    next_coordinate1 = next_coordinate1->next;
-                    next_coordinate2 = next_coordinate2->next;
-                }// i++;
-                // x = concave_points[i]->coordinates_x;
+                    //area division
+                    ROS_INFO("i here1");
+                    if(((y<next_coordinate2->coordinates_y)||(y<next_coordinate1->coordinates_y))&& ((y>prev_coordinate2->coordinates_y)||(y>prev_coordinate1->coordinates_y))){
+                    ROS_INFO("i here 1.5");
+                        ROS_ERROR("[CPP] : HI NEHA");
+                        ROS_INFO("Neha M here 1");
+                        std::cout<<"next_coordinate1_orig is"<<next_coordinate1_orig->coordinates_x<<","<<next_coordinate1_orig->coordinates_y<<"\n"<<std::endl;
+                        prev_intermidiate_coordinate = new coordinates_node();
+                        next_intermidiate_coordinate = new coordinates_node();
+                        slope1 = (next_coordinate2->coordinates_y-next_coordinate1->coordinates_y)/(next_coordinate2->coordinates_x-next_coordinate1->coordinates_x);
+                        slope2 = (prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x);
+                        next_intermidiate_coordinate->coordinates_y = slope1*x + next_coordinate1->coordinates_y - slope1*next_coordinate1->coordinates_x;
+                        ROS_ERROR("[CPP] : HI NEHA");
+                        ROS_INFO("Neha M here 2");
+                        std::cout<<"next_coordinate1_orig is"<<next_coordinate1_orig->coordinates_x<<","<<next_coordinate1_orig->coordinates_y<<"\n"<<std::endl;  
+                        prev_intermidiate_coordinate->coordinates_y = slope2*x + prev_coordinate1->coordinates_y - slope2*prev_coordinate1->coordinates_x;
+                        prev_intermidiate_coordinate->coordinates_x = x;
+                        next_intermidiate_coordinate->coordinates_x = x;
+                        ROS_ERROR("[CPP] : HI NEHA");
+                        ROS_INFO("Neha M here 3");
+                        std::cout<<"next_coordinate1_orig is"<<next_coordinate1_orig->coordinates_x<<","<<next_coordinate1_orig->coordinates_y<<"\n"<<std::endl;  
+                        next_intermidiate_coordinate->next = next_coordinate2;
+                        ROS_ERROR("[CPP] : HI NEHA");
+                        ROS_INFO("Neha M here 4");
+                        std::cout<<"next_coordinate1_orig is"<<next_coordinate1_orig->coordinates_x<<","<<next_coordinate1_orig->coordinates_y<<"\n"<<std::endl;  
+                        next_intermidiate_coordinate->prev = concave_point;
+                        ROS_ERROR("[CPP] : HI NEHA");
+                        ROS_INFO("Neha M here 5");
+                        std::cout<<"next_coordinate1_orig is"<<next_coordinate1_orig->coordinates_x<<","<<next_coordinate1_orig->coordinates_y<<"\n"<<std::endl;  
+                        prev_intermidiate_coordinate->next = prev_coordinate2;
+                        prev_intermidiate_coordinate->prev = concave_point;
+                        std::cout<<"prev_intermidiate_coordinate is"<<prev_intermidiate_coordinate->coordinates_x<<","<<prev_intermidiate_coordinate->coordinates_y<<"\n"<<std::endl;  
+                        std::cout<<"next_intermidiate_coordinate is"<<next_intermidiate_coordinate->coordinates_x<<","<<next_intermidiate_coordinate->coordinates_y<<"\n"<<std::endl;  
+                        ROS_ERROR("[CPP] : HI NEHA");
+                        std::cout<<"next_coordinate1_orig is"<<next_coordinate1_orig->coordinates_x<<","<<next_coordinate1_orig->coordinates_y<<"\n"<<std::endl;  
+                        std::cout<<"next_coordinate2_orig is"<<next_coordinate2_orig->coordinates_x<<","<<next_coordinate2_orig->coordinates_y<<"\n"<<std::endl;  
+                        temp_area_node->prev_coordinate1 = prev_coordinate1_orig;
+                        temp_area_node->prev_coordinate2 = prev_intermidiate_coordinate;
+                        temp_area_node->next_coordinate1 = next_coordinate1_orig;
+                        temp_area_node->next_coordinate2 = next_intermidiate_coordinate;
+                        std::cout<<"pushed coordinate is"<<temp_area_node->next_coordinate1->coordinates_x<<","<<temp_area_node->next_coordinate1->coordinates_y<<"\n"<<std::endl;  
+                        std::cout<<"pushed coordinate is"<<temp_area_node->next_coordinate2->coordinates_x<<","<<temp_area_node->next_coordinate2->coordinates_y<<"\n"<<std::endl;  
+                        std::cout<<"pushed coordinate is"<<temp_area_node->prev_coordinate1->coordinates_x<<","<<temp_area_node->prev_coordinate1->coordinates_y<<"\n"<<std::endl;  
+                        std::cout<<"pushed coordinate is"<<temp_area_node->prev_coordinate2->coordinates_x<<","<<temp_area_node->prev_coordinate2->coordinates_y<<"\n"<<std::endl;
+                        for(int i = 0; i<divided_area.size(); i++){
+                            std::cout<<divided_area[i]->prev_coordinate1->coordinates_x<<","<<divided_area[i]->prev_coordinate1->coordinates_y<<" "<<std::endl;  
+                            std::cout<<divided_area[i]->prev_coordinate2->coordinates_x<<","<<divided_area[i]->prev_coordinate2->coordinates_y<<" "<<std::endl;  
+                            std::cout<<divided_area[i]->next_coordinate1->coordinates_x<<","<<divided_area[i]->next_coordinate1->coordinates_y<<" "<<std::endl;  
+                            std::cout<<divided_area[i]->next_coordinate2->coordinates_x<<","<<divided_area[i]->next_coordinate2->coordinates_y<<" "<<std::endl;  
+                        }
+                        divided_area.push_back(temp_area_node);
+                        ROS_INFO("[CPP] : list of boustrophedon_area points are");
+                        for(int i = 0; i<divided_area.size(); i++){
+                            std::cout<<divided_area[i]->prev_coordinate1->coordinates_x<<","<<divided_area[i]->prev_coordinate1->coordinates_y<<" "<<std::endl;  
+                            std::cout<<divided_area[i]->prev_coordinate2->coordinates_x<<","<<divided_area[i]->prev_coordinate2->coordinates_y<<" "<<std::endl;  
+                            std::cout<<divided_area[i]->next_coordinate1->coordinates_x<<","<<divided_area[i]->next_coordinate1->coordinates_y<<" "<<std::endl;  
+                            std::cout<<divided_area[i]->next_coordinate2->coordinates_x<<","<<divided_area[i]->next_coordinate2->coordinates_y<<" "<<std::endl;  
+                        }
+                        concave_points_iterator = concave_points.begin();
+                        concave_points.erase(concave_points_iterator+i);
+                        boustrophedon_area_division(next_intermidiate_coordinate, next_coordinate2, concave_point, concave_point->prev);
+                        boustrophedon_area_division(concave_point, concave_point->next, prev_intermidiate_coordinate, prev_coordinate2);
+                        break;
+                    }
+                    else{
+                        prev_coordinate1 = prev_coordinate1->prev;
+                        prev_coordinate2 = prev_coordinate2->prev;
+                        next_coordinate1 = next_coordinate1->next;
+                        next_coordinate2 = next_coordinate2->next;
+                    }// i++;
+                    // x = concave_points[i]->coordinates_x;
                 }
                 else if((x<next_coordinate2->coordinates_x)&&(x>next_coordinate1->coordinates_x)){
                 prev_coordinate1 = prev_coordinate1->prev;
                 prev_coordinate2 = prev_coordinate2->prev;
                 concavity = true;
-        ROS_INFO("i here2");
+                ROS_INFO("i here2");
             }
                 else if((x<prev_coordinate2->coordinates_x)&&(x>prev_coordinate1->coordinates_x)){
                 next_coordinate1 = next_coordinate1->next;
                 next_coordinate2 = next_coordinate2->next;
+                ROS_INFO("i here3");
                 }
                 else{
                     prev_coordinate1 = prev_coordinate1->prev;
                     prev_coordinate2 = prev_coordinate2->prev;
                     next_coordinate1 = next_coordinate1->next;
                     next_coordinate2 = next_coordinate2->next;
-                }    
+                    ROS_INFO("i here4");
+                }
+                std::cout<<"m here"<<std::endl;
                 concavity = true;
             }
-            while (prev_coordinate2->next!= next_coordinate2);
+            while (prev_coordinate2 != next_coordinate2);
         }
             //improve
-            ROS_INFO("i here4");
+            ROS_INFO("i here5");
         //last two areas to be added
         temp_area_node->prev_coordinate1 = prev_coordinate1;
         temp_area_node->prev_coordinate2 = prev_coordinate2;
         temp_area_node->next_coordinate1 = next_coordinate1;
         temp_area_node->next_coordinate2 = next_coordinate2;
-        divided_area.push_back(temp_area_node);         
+        divided_area.push_back(temp_area_node);
         area_division_type = true;
     ROS_INFO("[CPP] : list of boustrophedon_area points are");
     for(int i = 0; i<divided_area.size(); i++){
