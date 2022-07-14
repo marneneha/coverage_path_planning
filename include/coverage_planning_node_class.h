@@ -39,8 +39,8 @@ namespace ns_boustrophedon{
         // coordinates_node*                       prev_coordinate2;
         // coordinates_node*                       next_coordinate1;
         // coordinates_node*                       next_coordinate2;
-        coordinates_node*                       prev_intermidiate_coordinate;
-        coordinates_node*                       next_intermidiate_coordinate;
+        // coordinates_node*                       prev_intermidiate_coordinate;
+        // coordinates_node*                       next_intermidiate_coordinate;
         bool                                    file_read = false;
         bool                                    sorting_status = false;
         bool                                    area_division_type = false;
