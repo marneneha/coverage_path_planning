@@ -195,13 +195,14 @@ void coverage_planning_node_class::boustrophedon_area_division(coordinates_node*
             else if((x<next_coordinate2->coordinates_x)&&(x>next_coordinate1->coordinates_x)){
                 prev_coordinate1 = prev_coordinate1->prev;
                 prev_coordinate2 = prev_coordinate2->prev;
-                concavity = true;
+                temp_area_node->concavity = true;
                 ROS_INFO("i here2");
             }
             else if((x<prev_coordinate2->coordinates_x)&&(x>prev_coordinate1->coordinates_x)){
-            next_coordinate1 = next_coordinate1->next;
-            next_coordinate2 = next_coordinate2->next;
-            ROS_INFO("i here3");
+                next_coordinate1 = next_coordinate1->next;
+                next_coordinate2 = next_coordinate2->next;
+                temp_area_node->concavity = true;
+                ROS_INFO("i here3");
             }
             else{
                 prev_coordinate1 = prev_coordinate1->prev;
@@ -211,7 +212,6 @@ void coverage_planning_node_class::boustrophedon_area_division(coordinates_node*
                 ROS_INFO("i here4");
             }
             std::cout<<"m here"<<std::endl;
-            concavity = true;
         }
     }
             //improve
@@ -240,66 +240,71 @@ void coverage_planning_node_class::boustrophedon_matrix(){
     float total_distance, distance1, distance2, distance3, prev_length, next_length;
     std::vector<float> weighted_array;
     std::vector<std::vector<float>> weighted_matrix;
-    coordinates_node* prev_coordinate1;
-    coordinates_node* prev_coordinate2;
-    coordinates_node* next_coordinate1;
-    coordinates_node* next_coordinate2;
-    for(int i = 0; i< divided_area.size(); i++){
-        prev_coordinate1 = divided_area[i]->prev_coordinate1;
-        prev_coordinate2 = divided_area[i]->prev_coordinate2;
-        next_coordinate1 = divided_area[i]->next_coordinate1;
-        next_coordinate2 = divided_area[i]->next_coordinate2;
-            for(int k = 0; k<4; k++){
-            prev_length = coverage_planning_node_class::dist(prev_coordinate1, prev_coordinate2);
-            next_length = coverage_planning_node_class::dist(next_coordinate1, next_coordinate2);
+    coordinates_node* prev_coordinate1_node1;
+    coordinates_node* prev_coordinate2_node1;
+    coordinates_node* next_coordinate1_node1;
+    coordinates_node* next_coordinate2_node1;
+    coordinates_node* prev_coordinate1_node2;
+    coordinates_node* prev_coordinate2_node2;
+    coordinates_node* next_coordinate1_node2;
+    coordinates_node* next_coordinate2_node2;
+        for(int i = 0; i< divided_area.size(); i++){
+        prev_coordinate1_node1 = divided_area[i]->prev_coordinate1;
+        prev_coordinate2_node1 = divided_area[i]->prev_coordinate2;
+        next_coordinate1_node1 = divided_area[i]->next_coordinate1;
+        next_coordinate2_node1 = divided_area[i]->next_coordinate2;
+        for(int k = 0; k<4; k++){
+            prev_length = coverage_planning_node_class::dist(prev_coordinate1_node1, prev_coordinate2_node1);
+            next_length = coverage_planning_node_class::dist(next_coordinate1_node1, next_coordinate2_node1);
             distance1 = 2*(coverage_planning_node_class::max(prev_length, next_length)/sweeping_dist);
             for(int j = 0; j<divided_area.size(); j++){
-                prev_coordinate1 = divided_area[j]->prev_coordinate1;
-                prev_coordinate2 = divided_area[j]->prev_coordinate2;
-                next_coordinate1 = divided_area[j]->next_coordinate1;
-                next_coordinate2 = divided_area[j]->next_coordinate2;
-                if(i == j){
-                    total_distance = 1000;
-                    weighted_array.push_back(total_distance);
-                    std::cout<<total_distance<<std::endl;
-                }
-                else{
-                    distance2 = coverage_planning_node_class::dist(extremum(prev_coordinate2, next_coordinate2, 1), extremum(prev_coordinate1, next_coordinate1, 0));
-                    for(int l = 0; l<4; l++){
-                        prev_length = coverage_planning_node_class::dist(prev_coordinate1, prev_coordinate2);
-                        next_length = coverage_planning_node_class::dist(next_coordinate1, next_coordinate2);
-                        distance3 = 2*(coverage_planning_node_class::max(prev_length, next_length)/sweeping_dist);
-                        total_distance = distance1 + distance2 + distance3;
+                prev_coordinate1_node2 = divided_area[j]->prev_coordinate1;
+                prev_coordinate2_node2 = divided_area[j]->prev_coordinate2;
+                next_coordinate1_node2 = divided_area[j]->next_coordinate1;
+                next_coordinate2_node2 = divided_area[j]->next_coordinate2;
+                for(int l = 0; l<4; l++){
+                    if(i == j){
+                        total_distance = 1000;
                         weighted_array.push_back(total_distance);
-                        std::cout<<total_distance<<std::endl;
-                        if(concavity){
-                            k++;
-                            prev_coordinate1 = prev_coordinate1->prev;
-                            prev_coordinate2 = prev_coordinate2->prev;
-                            next_coordinate1 = next_coordinate1->prev;
-                            next_coordinate2 = next_coordinate2->prev;
-                        }
-                        prev_coordinate1 = prev_coordinate1->prev;
-                        prev_coordinate2 = prev_coordinate2->prev;
-                        next_coordinate1 = next_coordinate1->prev;
-                        next_coordinate2 = next_coordinate2->prev;
+                        // std::cout<<"i is"<<i<<"j is"<<j<<"k is"<<k<<"total distance is"<<total_distance<<std::endl;
+                        printf("%f  " ,total_distance);
                     }
-                }
+                    else{
+                        distance2 = coverage_planning_node_class::dist(extremum(prev_coordinate2_node1, next_coordinate2_node1, 1), extremum(prev_coordinate1_node2, next_coordinate1_node2, 0));
+                            prev_length = coverage_planning_node_class::dist(prev_coordinate1_node2, prev_coordinate2_node2);
+                            next_length = coverage_planning_node_class::dist(next_coordinate1_node2, next_coordinate2_node2);
+                            distance3 = 2*(coverage_planning_node_class::max(prev_length, next_length)/sweeping_dist);
+                            total_distance = distance1 + distance2 + distance3;
+                            weighted_array.push_back(total_distance);
+                            // std::cout<<"i is"<<i<<"j is"<<j<<"k is"<<k<<"l is"<<l<<"total distance is"<<total_distance<<std::endl;
+                            printf("%f  " ,total_distance);
+                    }
+                    if(divided_area[j]->concavity){
+                        l++;
+                        prev_coordinate1_node2 = prev_coordinate1_node2->prev;
+                        prev_coordinate2_node2 = prev_coordinate2_node2->prev;
+                        next_coordinate1_node2 = next_coordinate1_node2->prev;
+                        next_coordinate2_node2 = next_coordinate2_node2->prev;
+                    }
+                    prev_coordinate1_node2 = prev_coordinate1_node2->prev;
+                    prev_coordinate2_node2 = prev_coordinate2_node2->prev;
+                    next_coordinate1_node2 = next_coordinate1_node2->prev;
+                    next_coordinate2_node2 = next_coordinate2_node2->prev;                 }
             }
             weighted_matrix.push_back(weighted_array);
             std::cout<<"\n"<<std::endl;
-            if(concavity){
+            if(divided_area[i]->concavity){
                 k++;
-                prev_coordinate1 = prev_coordinate1->prev;
-                prev_coordinate2 = prev_coordinate2->prev;
-                next_coordinate1 = next_coordinate1->prev;
-                next_coordinate2 = next_coordinate2->prev;
+                prev_coordinate1_node1 = prev_coordinate1_node1->prev;
+                prev_coordinate2_node1 = prev_coordinate2_node1->prev;
+                next_coordinate1_node1 = next_coordinate1_node1->prev;
+                next_coordinate2_node1 = next_coordinate2_node1->prev;
             }
-            prev_coordinate1 = prev_coordinate1->prev;
-            prev_coordinate2 = prev_coordinate2->prev;
-            next_coordinate1 = next_coordinate1->prev;
-            next_coordinate2 = next_coordinate2->prev;            
-        }
+                prev_coordinate1_node1 = prev_coordinate1_node1->prev;
+                prev_coordinate2_node1 = prev_coordinate2_node1->prev;
+                next_coordinate1_node1 = next_coordinate1_node1->prev;
+                next_coordinate2_node1 = next_coordinate2_node1->prev;
+         }
         
     }
 }
