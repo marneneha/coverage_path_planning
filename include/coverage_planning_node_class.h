@@ -30,7 +30,7 @@ namespace ns_boustrophedon{
             coordinates_node* prev_coordinate2;
             coordinates_node* next_coordinate1;
             coordinates_node* next_coordinate2;
-            bool concavity = false;
+            bool concavity = true;
         };
         std::vector<area_node*>                 divided_area;
         coordinates_node*                       head = new coordinates_node();
@@ -44,6 +44,7 @@ namespace ns_boustrophedon{
         mrs_msgs::Reference                     waypoint;
         std::vector <coordinates_node*>         concave_points;
         std::vector <coordinates_node*>::iterator concave_points_iterator;
+        void cycle_area_node(area_node* temp_area_node);
         bool read(coverage_planning::CPPServiceCall::Request& req, coverage_planning::CPPServiceCall::Response& res);
         void coordinate_finder();
         int concavity_indentifier();

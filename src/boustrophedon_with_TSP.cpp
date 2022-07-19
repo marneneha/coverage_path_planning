@@ -105,7 +105,17 @@ void coverage_planning_node_class::sorting(std::vector <coordinates_node*>& conc
     coordinates_node* concave_point = concave_points[0];
     concave_points_iterator = concave_points.begin();
     concave_points.erase(concave_points_iterator);
-    boustrophedon_area_division(concave_point, concave_point->next, concave_point, concave_point->prev);
+    coordinates_node* next_coordinate1_orig = new coordinates_node();
+    coordinates_node* prev_coordinate1_orig = new coordinates_node();
+    next_coordinate1_orig->coordinates_x = concave_point->coordinates_x;
+    next_coordinate1_orig->coordinates_y = concave_point->coordinates_y;
+    next_coordinate1_orig->prev = prev_coordinate1_orig;
+    next_coordinate1_orig->next = concave_point->next;
+    prev_coordinate1_orig->coordinates_x = concave_point->coordinates_x;
+    prev_coordinate1_orig->coordinates_y = concave_point->coordinates_y;
+    prev_coordinate1_orig->prev = concave_point->prev;
+    prev_coordinate1_orig->next = next_coordinate1_orig;
+    boustrophedon_area_division(next_coordinate1_orig, concave_point->next, prev_coordinate1_orig, concave_point->prev);
 }
 void coverage_planning_node_class::boustrophedon_area_division(coordinates_node* next_coordinate1_orig, coordinates_node* next_coordinate2_orig, coordinates_node* prev_coordinate1_orig, coordinates_node* prev_coordinate2_orig){
     if(!sorting_status){
@@ -120,6 +130,9 @@ void coverage_planning_node_class::boustrophedon_area_division(coordinates_node*
     coordinates_node* next_coordinate2;  
     coordinates_node* prev_intermidiate_coordinate;
     coordinates_node* next_intermidiate_coordinate;
+    coordinates_node* prev_intermidiate_coordinate_continue;
+    coordinates_node* next_intermidiate_coordinate_continue;
+    coordinates_node* next_concave_point;
     for(int i=0; i<concave_points.size(); i++){
         coordinates_node* concave_point = concave_points[i];
         x = concave_point->coordinates_x;
@@ -145,27 +158,40 @@ void coverage_planning_node_class::boustrophedon_area_division(coordinates_node*
                 if(((y<next_coordinate2->coordinates_y)||(y<next_coordinate1->coordinates_y))&& ((y>prev_coordinate2->coordinates_y)||(y>prev_coordinate1->coordinates_y))){
                     prev_intermidiate_coordinate = new coordinates_node();
                     next_intermidiate_coordinate = new coordinates_node();
+                    prev_intermidiate_coordinate_continue = new coordinates_node();
+                    next_intermidiate_coordinate_continue = new coordinates_node();
+                    next_concave_point = new coordinates_node();
                     slope1 = (next_coordinate2->coordinates_y-next_coordinate1->coordinates_y)/(next_coordinate2->coordinates_x-next_coordinate1->coordinates_x);
                     slope2 = (prev_coordinate2->coordinates_y-prev_coordinate1->coordinates_y)/(prev_coordinate2->coordinates_x-prev_coordinate1->coordinates_x);
                     next_intermidiate_coordinate->coordinates_y = slope1*x + next_coordinate1->coordinates_y - slope1*next_coordinate1->coordinates_x;
                     prev_intermidiate_coordinate->coordinates_y = slope2*x + prev_coordinate1->coordinates_y - slope2*prev_coordinate1->coordinates_x;
                     prev_intermidiate_coordinate->coordinates_x = x;
                     next_intermidiate_coordinate->coordinates_x = x;
-                    next_intermidiate_coordinate->next = next_coordinate2;
-                    next_intermidiate_coordinate->prev = concave_point;
-                    prev_intermidiate_coordinate->next = prev_coordinate2;
-                    prev_intermidiate_coordinate->prev = concave_point;
+                    next_intermidiate_coordinate->next = prev_intermidiate_coordinate;
+                    next_intermidiate_coordinate->prev = next_coordinate1;
+                    prev_intermidiate_coordinate->next = prev_coordinate1;
+                    prev_intermidiate_coordinate->prev = next_intermidiate_coordinate;
+                    prev_coordinate1->next = prev_intermidiate_coordinate;
+                    next_coordinate1->next = next_intermidiate_coordinate;
+
+                    next_intermidiate_coordinate_continue->coordinates_y = slope1*x + next_coordinate1->coordinates_y - slope1*next_coordinate1->coordinates_x;
+                    prev_intermidiate_coordinate_continue->coordinates_y = slope2*x + prev_coordinate1->coordinates_y - slope2*prev_coordinate1->coordinates_x;
+                    prev_intermidiate_coordinate_continue->coordinates_x = x;
+                    next_intermidiate_coordinate_continue->coordinates_x = x;
+
                     std::cout<<"prev_intermidiate_coordinate is"<<prev_intermidiate_coordinate->coordinates_x<<","<<prev_intermidiate_coordinate->coordinates_y<<"\n"<<std::endl;  
                     std::cout<<"next_intermidiate_coordinate is"<<next_intermidiate_coordinate->coordinates_x<<","<<next_intermidiate_coordinate->coordinates_y<<"\n"<<std::endl;  
+                    std::cout<<"previous of next_intermidiate_coordinate is"<<next_coordinate1_orig->prev->coordinates_x<<","<<next_coordinate1_orig->prev->coordinates_y<<"\n"<<std::endl;  
                     temp_area_node->prev_coordinate1 = prev_coordinate1_orig;
                     temp_area_node->prev_coordinate2 = prev_intermidiate_coordinate;
                     temp_area_node->next_coordinate1 = next_coordinate1_orig;
                     temp_area_node->next_coordinate2 = next_intermidiate_coordinate;
-                    std::cout<<"pushed coordinate is"<<temp_area_node->next_coordinate1->coordinates_x<<","<<temp_area_node->next_coordinate1->coordinates_y<<"\n"<<std::endl;  
-                    std::cout<<"pushed coordinate is"<<temp_area_node->next_coordinate2->coordinates_x<<","<<temp_area_node->next_coordinate2->coordinates_y<<"\n"<<std::endl;  
-                    std::cout<<"pushed coordinate is"<<temp_area_node->prev_coordinate1->coordinates_x<<","<<temp_area_node->prev_coordinate1->coordinates_y<<"\n"<<std::endl;  
-                    std::cout<<"pushed coordinate is"<<temp_area_node->prev_coordinate2->coordinates_x<<","<<temp_area_node->prev_coordinate2->coordinates_y<<"\n"<<std::endl;
+                    cycle_area_node(temp_area_node);
                     divided_area.push_back(temp_area_node);
+                    next_concave_point->coordinates_x = concave_point->coordinates_x;
+                    next_concave_point->coordinates_y = concave_point->coordinates_y;
+                    next_concave_point->prev = concave_point->prev;
+                    next_concave_point->next = concave_point->next;
                     ROS_INFO("[CPP] : list of boustrophedon_area points are");
                     for(int i = 0; i<divided_area.size(); i++){
                         std::cout<<divided_area[i]->prev_coordinate1->coordinates_x<<","<<divided_area[i]->prev_coordinate1->coordinates_y<<" "<<std::endl;  
@@ -173,9 +199,10 @@ void coverage_planning_node_class::boustrophedon_area_division(coordinates_node*
                         std::cout<<divided_area[i]->next_coordinate1->coordinates_x<<","<<divided_area[i]->next_coordinate1->coordinates_y<<" "<<std::endl;  
                         std::cout<<divided_area[i]->next_coordinate2->coordinates_x<<","<<divided_area[i]->next_coordinate2->coordinates_y<<" "<<std::endl;  
                     }
-                    boustrophedon_area_division(next_intermidiate_coordinate, next_coordinate2, concave_point, concave_point->prev);
+                    boustrophedon_area_division(next_intermidiate_coordinate_continue, next_coordinate2, concave_point, concave_point->prev);
                     ROS_ERROR("HI NEHA M HERE");
-                    boustrophedon_area_division(concave_point, concave_point->next, prev_intermidiate_coordinate, prev_coordinate2);
+                    boustrophedon_area_division(next_concave_point, next_concave_point->next, prev_intermidiate_coordinate_continue, prev_coordinate2);
+
                     concave_points_iterator = concave_points.begin();
                     concave_points.erase(concave_points_iterator+i);
                     if(concave_points.size() == 0){
@@ -222,6 +249,15 @@ void coverage_planning_node_class::boustrophedon_area_division(coordinates_node*
     temp_area_node->prev_coordinate2 = prev_coordinate2;
     temp_area_node->next_coordinate1 = next_coordinate1_orig;
     temp_area_node->next_coordinate2 = next_coordinate2;
+    cycle_area_node(temp_area_node);
+    std::cout<<"pushed coordinate is"<<temp_area_node->next_coordinate1->prev->coordinates_x<<","<<temp_area_node->next_coordinate1->prev->coordinates_y<<"\n"<<std::endl;  
+    std::cout<<"pushed coordinate is"<<temp_area_node->next_coordinate2->prev->coordinates_x<<","<<temp_area_node->next_coordinate2->prev->coordinates_y<<"\n"<<std::endl;  
+    std::cout<<"pushed coordinate is"<<temp_area_node->prev_coordinate1->prev->coordinates_x<<","<<temp_area_node->prev_coordinate1->prev->coordinates_y<<"\n"<<std::endl;  
+    std::cout<<"pushed coordinate is"<<temp_area_node->prev_coordinate2->prev->coordinates_x<<","<<temp_area_node->prev_coordinate2->prev->coordinates_y<<"\n"<<std::endl;
+    std::cout<<"prev pushed coordinate is"<<temp_area_node->next_coordinate1->prev->prev->coordinates_x<<","<<temp_area_node->next_coordinate1->prev->prev->coordinates_y<<"\n"<<std::endl;  
+    std::cout<<"prev pushed coordinate is"<<temp_area_node->next_coordinate2->prev->prev->coordinates_x<<","<<temp_area_node->next_coordinate2->prev->prev->coordinates_y<<"\n"<<std::endl;  
+    std::cout<<"prev pushed coordinate is"<<temp_area_node->prev_coordinate1->prev->prev->coordinates_x<<","<<temp_area_node->prev_coordinate1->prev->prev->coordinates_y<<"\n"<<std::endl;  
+    std::cout<<"prev pushed coordinate is"<<temp_area_node->prev_coordinate2->prev->prev->coordinates_x<<","<<temp_area_node->prev_coordinate2->prev->prev->coordinates_y<<"\n"<<std::endl;
     divided_area.push_back(temp_area_node);
     ROS_INFO("[CPP] : list of boustrophedon_area points are");
     for(int i = 0; i<divided_area.size(); i++){
@@ -254,6 +290,10 @@ void coverage_planning_node_class::boustrophedon_matrix(){
         next_coordinate1_node1 = divided_area[i]->next_coordinate1;
         next_coordinate2_node1 = divided_area[i]->next_coordinate2;
         for(int k = 0; k<4; k++){
+            // std::cout<<"next_coordinate1_node1 is"<<next_coordinate1_node1->coordinates_x<<","<<next_coordinate1_node1->coordinates_y<<"\n"<<std::endl;  
+            // std::cout<<"next_coordinate2_node1 is"<<next_coordinate2_node1->coordinates_x<<","<<next_coordinate2_node1->coordinates_y<<"\n"<<std::endl;  
+            // std::cout<<"prev_coordinate1_node1 is"<<prev_coordinate1_node1->coordinates_x<<","<<prev_coordinate1_node1->coordinates_y<<"\n"<<std::endl;  
+            // std::cout<<"prev_coordinate2_node1 is"<<prev_coordinate2_node1->coordinates_x<<","<<prev_coordinate2_node1->coordinates_y<<"\n"<<std::endl;
             prev_length = coverage_planning_node_class::dist(prev_coordinate1_node1, prev_coordinate2_node1);
             next_length = coverage_planning_node_class::dist(next_coordinate1_node1, next_coordinate2_node1);
             distance1 = 2*(coverage_planning_node_class::max(prev_length, next_length)/sweeping_dist);
@@ -263,6 +303,11 @@ void coverage_planning_node_class::boustrophedon_matrix(){
                 next_coordinate1_node2 = divided_area[j]->next_coordinate1;
                 next_coordinate2_node2 = divided_area[j]->next_coordinate2;
                 for(int l = 0; l<4; l++){
+                    // std::cout<<"i is"<<i<<"k is"<<k<<"j is"<<j<<"l is"<<l<<std::endl;
+                    // std::cout<<"next_coordinate1_node2 is"<<next_coordinate1_node2->coordinates_x<<","<<next_coordinate1_node2->coordinates_y<<"\n"<<std::endl;  
+                    // std::cout<<"next_coordinate2_node2 is"<<next_coordinate2_node2->coordinates_x<<","<<next_coordinate2_node2->coordinates_y<<"\n"<<std::endl;  
+                    // std::cout<<"prev_coordinate1_node2 is"<<prev_coordinate1_node2->coordinates_x<<","<<prev_coordinate1_node2->coordinates_y<<"\n"<<std::endl;  
+                    // std::cout<<"prev_coordinate2_node2 is"<<prev_coordinate2_node2->coordinates_x<<","<<prev_coordinate2_node2->coordinates_y<<"\n"<<std::endl;
                     if(i == j){
                         total_distance = 1000;
                         weighted_array.push_back(total_distance);
@@ -271,13 +316,13 @@ void coverage_planning_node_class::boustrophedon_matrix(){
                     }
                     else{
                         distance2 = coverage_planning_node_class::dist(extremum(prev_coordinate2_node1, next_coordinate2_node1, 1), extremum(prev_coordinate1_node2, next_coordinate1_node2, 0));
-                            prev_length = coverage_planning_node_class::dist(prev_coordinate1_node2, prev_coordinate2_node2);
-                            next_length = coverage_planning_node_class::dist(next_coordinate1_node2, next_coordinate2_node2);
-                            distance3 = 2*(coverage_planning_node_class::max(prev_length, next_length)/sweeping_dist);
-                            total_distance = distance1 + distance2 + distance3;
-                            weighted_array.push_back(total_distance);
-                            // std::cout<<"i is"<<i<<"j is"<<j<<"k is"<<k<<"l is"<<l<<"total distance is"<<total_distance<<std::endl;
-                            printf("%f  " ,total_distance);
+                        prev_length = coverage_planning_node_class::dist(prev_coordinate1_node2, prev_coordinate2_node2);
+                        next_length = coverage_planning_node_class::dist(next_coordinate1_node2, next_coordinate2_node2);
+                        distance3 = 2*(coverage_planning_node_class::max(prev_length, next_length)/sweeping_dist);
+                        total_distance = distance1 + distance2 + distance3;
+                        weighted_array.push_back(total_distance);
+                        // std::cout<<"i is"<<i<<"j is"<<j<<"k is"<<k<<"l is"<<l<<"total distance is"<<total_distance<<std::endl;
+                        printf("%f  " ,total_distance);
                     }
                     if(divided_area[j]->concavity){
                         l++;
@@ -289,7 +334,8 @@ void coverage_planning_node_class::boustrophedon_matrix(){
                     prev_coordinate1_node2 = prev_coordinate1_node2->prev;
                     prev_coordinate2_node2 = prev_coordinate2_node2->prev;
                     next_coordinate1_node2 = next_coordinate1_node2->prev;
-                    next_coordinate2_node2 = next_coordinate2_node2->prev;                 }
+                    next_coordinate2_node2 = next_coordinate2_node2->prev;                 
+                }
             }
             weighted_matrix.push_back(weighted_array);
             std::cout<<"\n"<<std::endl;
@@ -310,6 +356,26 @@ void coverage_planning_node_class::boustrophedon_matrix(){
 }
 //node_read (read from the file tours what is the order for sweeping)
 //trajectory planner for sweeping the area this trajectory will be sent to trajectory planner servis 
+void coverage_planning_node_class::cycle_area_node(area_node* temp_area_node){
+    if(temp_area_node->prev_coordinate2 == temp_area_node->next_coordinate2){
+        temp_area_node->prev_coordinate2 = new coordinates_node();
+        temp_area_node->prev_coordinate2->coordinates_x = temp_area_node->next_coordinate2->coordinates_x;
+        temp_area_node->prev_coordinate2->coordinates_y = temp_area_node->next_coordinate2->coordinates_y;
+    }
+    temp_area_node->prev_coordinate1->prev = temp_area_node->prev_coordinate2;
+    temp_area_node->prev_coordinate1->next = temp_area_node->next_coordinate1;
+    temp_area_node->prev_coordinate2->prev = temp_area_node->next_coordinate2;
+    temp_area_node->prev_coordinate2->next = temp_area_node->prev_coordinate1;
+    temp_area_node->next_coordinate1->prev = temp_area_node->prev_coordinate1;
+    temp_area_node->next_coordinate1->next = temp_area_node->next_coordinate2;
+    temp_area_node->next_coordinate2->prev = temp_area_node->next_coordinate1;
+    temp_area_node->next_coordinate2->next = temp_area_node->prev_coordinate2;
+
+    // std::cout<<"pushed coordinate is"<<temp_area_node->next_coordinate1->coordinates_x<<","<<temp_area_node->next_coordinate1->coordinates_y<<"\n"<<std::endl;  
+    // std::cout<<"pushed coordinate is"<<temp_area_node->next_coordinate2->coordinates_x<<","<<temp_area_node->next_coordinate2->coordinates_y<<"\n"<<std::endl;  
+    // std::cout<<"pushed coordinate is"<<temp_area_node->prev_coordinate1->coordinates_x<<","<<temp_area_node->prev_coordinate1->coordinates_y<<"\n"<<std::endl;  
+    // std::cout<<"pushed coordinate is"<<temp_area_node->prev_coordinate2->coordinates_x<<","<<temp_area_node->prev_coordinate2->coordinates_y<<"\n"<<std::endl;
+}
 coverage_planning_node_class::coordinates_node* coverage_planning_node_class::extremum (coordinates_node* prev_coordinate, coordinates_node* next_coordinate, bool action){
     if(action){
         if(prev_coordinate->coordinates_x > next_coordinate->coordinates_x){
