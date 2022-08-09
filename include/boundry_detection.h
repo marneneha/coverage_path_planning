@@ -19,9 +19,6 @@ namespace ns_boundry_detection{
         class boundry_node{
             public:
             std::vector<pixel> boundry_vector;
-            pixel* max_x_boundry;
-            pixel* min_y_boundry;
-            pixel* max_y_boundry;
         };
         std::vector<pixel> waypoint_vector;
     }
