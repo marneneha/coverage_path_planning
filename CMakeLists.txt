@@ -135,9 +135,9 @@ include_directories(
 add_library(boustrophedon_with_TSP
 src/boustrophedon_with_TSP.cpp
 )
-# add_library(boundry_detection
-# src/boundry_detection.cpp
-# )
+add_library(boundry_detection
+src/boundry_detection.cpp
+)
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -170,9 +170,9 @@ src/boustrophedon_with_TSP.cpp
 target_link_libraries(boustrophedon_with_TSP
 ${catkin_LIBRARIES}
 )
-# target_link_libraries(boundry_detection
-# ${catkin_LIBRARIES}
-# )
+target_link_libraries(boundry_detection
+${catkin_LIBRARIES}
+)
 #############
 ## Install ##
 #############
