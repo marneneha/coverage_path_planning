@@ -126,15 +126,18 @@ include_directories(
 )
 
 ## Declare a C++ library
-#  add_library(${PROJECT_NAME}_node_class
-#    src/${PROJECT_NAME}_node_class.cpp
-#  )
-#  add_library(${PROJECT_NAME}_wrapper
-#  src/${PROJECT_NAME}_wrapper.cpp
+# add_library(${PROJECT_NAME}_node_class
+#   src/${PROJECT_NAME}_node_class.cpp
+# )
+# add_library(${PROJECT_NAME}_wrapper
+# src/${PROJECT_NAME}_wrapper.cpp
 # )
 add_library(boustrophedon_with_TSP
 src/boustrophedon_with_TSP.cpp
 )
+# add_library(boundry_detection
+# src/boundry_detection.cpp
+# )
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -143,7 +146,9 @@ src/boustrophedon_with_TSP.cpp
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/coverage_planning_node_class.cpp src/coverage_planning_wrapper.cpp)
+# add_executable(${PROJECT_NAME}_node src/boustrophedon_with_TSP.cpp )
+# src/boundry_detection.cpp 
+# src/coverage_planning_wrapper.cpp
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -156,15 +161,18 @@ src/boustrophedon_with_TSP.cpp
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-#  target_link_libraries(${PROJECT_NAME}_wrapper
-#    ${catkin_LIBRARIES}
-#  )
-#  target_link_libraries(${PROJECT_NAME}_node_class
-#    ${catkin_LIBRARIES}
-#  )
- target_link_libraries(boustrophedon_with_TSP
- ${catkin_LIBRARIES}
+# target_link_libraries(${PROJECT_NAME}_wrapper
+#   ${catkin_LIBRARIES}
+# )
+# target_link_libraries(${PROJECT_NAME}_node_class
+#   ${catkin_LIBRARIES}
+# )
+target_link_libraries(boustrophedon_with_TSP
+${catkin_LIBRARIES}
 )
+# target_link_libraries(boundry_detection
+# ${catkin_LIBRARIES}
+# )
 #############
 ## Install ##
 #############

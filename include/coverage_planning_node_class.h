@@ -45,6 +45,7 @@ namespace ns_boustrophedon{
         std::vector <coordinates_node*>         concave_points;
         std::vector <coordinates_node*>::iterator concave_points_iterator;
         void cycle_area_node(area_node* temp_area_node);
+        
         bool read(coverage_planning::CPPServiceCall::Request& req, coverage_planning::CPPServiceCall::Response& res);
         void coordinate_finder();
         int concavity_indentifier();
@@ -55,5 +56,5 @@ namespace ns_boustrophedon{
         float max(float length1, float legth2);
         float dist (coordinates_node* node1, coordinates_node* node2);
         void trajectory_planner(coordinates_node* side_coordinate1, coordinates_node* side_coordinate2);
-        };
+    };
 }

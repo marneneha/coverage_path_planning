@@ -1,7 +1,7 @@
-<library path="lib/libcoverage_planning_node_class">
+<!-- <library path="lib/libcoverage_planning_node_class">
     <class name="ns_coverage_path_node/coverage_planning_node_class" type="ns_coverage_path_node::coverage_planning_node_class" base_class_type="nodelet::Nodelet">
     <description>coverage_planning_node_class nodelet</description>
-  </class>
+  </class> -->
 </library>
 <library path="lib/libcoverage_planning_wrapper">
     <class name="ns_wrapper/coverage_planning_wrapper_class" type="ns_wrapper::coverage_planning_wrapper_class" base_class_type="nodelet::Nodelet">
@@ -11,5 +11,10 @@
 <library path="lib/libboustrophedon_with_TSP">
     <class name="ns_boustrophedon/coverage_planning_node_class" type="ns_boustrophedon::coverage_planning_node_class" base_class_type="nodelet::Nodelet">
     <description>boustrophedon_with_TSP nodelet</description>
+  </class>
+</library>
+<library path="lib/libboundry_detection">
+    <class name="ns_boundry_detection/boundry_detection_node_class" type="ns_boundry_detection::boundry_detection_node_class" base_class_type="nodelet::Nodelet">
+    <description>boundry_detection nodelet</description>
   </class>
 </library>
