@@ -11,6 +11,7 @@
 #include <mrs_lib/param_loader.h>
 #include <pluginlib/class_list_macros.h>
 #include <coverage_planning/CPPServiceCall.h>
+#include <coverage_planning/UpdateMap.h>
 namespace ns_boustrophedon{
     class coverage_planning_node_class : public nodelet::Nodelet{
         public:
@@ -45,8 +46,13 @@ namespace ns_boustrophedon{
         std::vector <coordinates_node*>         concave_points;
         std::vector <coordinates_node*>::iterator concave_points_iterator;
         void cycle_area_node(area_node* temp_area_node);
+        mrs_msgs::PathSrv::Request              Pathreq;
+        mrs_msgs::PathSrv::Response             Pathres;
+        coverage_planning::UpdateMap::Request   UpdateMapReq;
+        coverage_planning::UpdateMap::Response  UpdateMapRes;
         
-        bool read(coverage_planning::CPPServiceCall::Request& req, coverage_planning::CPPServiceCall::Response& res);
+        bool read(coverage_planning::CPPServiceCall::Request& Pathreq, coverage_planning::CPPServiceCall::Response& Pathres);
+        bool update_map(coverage_planning::UpdateMap::Request& UpdateMapReq,  coverage_planning::UpdateMap::Response& UpdateMapRes);
         void coordinate_finder();
         int concavity_indentifier();
         void sorting(std::vector <coordinates_node*>& concave_points);

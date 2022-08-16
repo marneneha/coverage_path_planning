@@ -17,8 +17,13 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   nodelet
   message_generation
+  cv_bridge
+  tf
+  sensor_msgs
+  image_transport
 )
-
+find_package(  opencv2
+)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -63,6 +68,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files( 
   FILES
   CPPServiceCall.srv
+  UpdateMap.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -76,6 +82,8 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   std_msgs
+  sensor_msgs
+  geometry_msgs
 )
 
 ################################################
@@ -110,7 +118,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES coverage_planning
-  CATKIN_DEPENDS roscpp std_msgs mrs_lib mrs_msgs geometry_msgs nav_msgs message_runtime 
+  CATKIN_DEPENDS roscpp std_msgs sensor_msgs mrs_lib mrs_msgs geometry_msgs nav_msgs message_runtime 
   #DEPENDS system_lib
 )
 

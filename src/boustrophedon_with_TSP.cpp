@@ -4,12 +4,13 @@ void coverage_planning_node_class::onInit(){
 	ros::NodeHandle nh = nodelet::Nodelet::getMTPrivateNodeHandle();
     coverage_planning_trajectory_service_client = nh.serviceClient<mrs_msgs::PathSrv>("path_to_follow");
     ros::ServiceServer CPP_call_file = nh.advertiseService("CPP_service_call", &coverage_planning_node_class::read, this);
+    ros::ServiceServer update_map = nh.advertiseService("update_map_service", &coverage_planning_node_class::update_map, this);
     std::cout<<"INSIDE BOUSTROPHEDON"<<std::endl;
     ros::spin();
 }
-bool coverage_planning_node_class::read(coverage_planning::CPPServiceCall::Request& req,  coverage_planning::CPPServiceCall::Response& res){
+bool coverage_planning_node_class::read(coverage_planning::CPPServiceCall::Request& Pathreq, coverage_planning::CPPServiceCall::Response& Pathres){
     // points are read in clockwise format
-    std::string _coverage_planning_area_ = req.file_name;
+    std::string _coverage_planning_area_ = Pathreq.file_name;
     std::string coverage_planning_area(_coverage_planning_area_);
     coordinates_node* data_iterator;
     float data;
@@ -605,6 +606,29 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
     req.path.override_constraints = false;
     req.path.relax_heading = true;
     coverage_planning_trajectory_service_client.call(req, res);
+}
+bool coverage_planning_node_class::update_map(coverage_planning::UpdateMap::Request& UpdateMapReq,  coverage_planning::UpdateMap::Response& UpdateMapRes){
+    // if(image_classified != true){
+    //     return;
+    // }
+    coordinates_node* next_coordinate1;
+    coordinates_node* next_coordinate2;
+    coordinates_node* temp_waypoint = new coordinates_node();
+    temp_waypoint->coordinates_x = UpdateMapReq.visited_waypoints[0].x;
+    temp_waypoint->coordinates_y = UpdateMapReq.visited_waypoints[0].y;
+    next_coordinate1->next = temp_waypoint;
+    temp_waypoint->prev = next_coordinate1;
+    for(int i = 1; i< UpdateMapReq.visited_waypoints.size(); i++){
+        coordinates_node* temp_waypoint1 = new coordinates_node();
+        temp_waypoint->coordinates_x = UpdateMapReq.visited_waypoints[i].x;
+        temp_waypoint->coordinates_y = UpdateMapReq.visited_waypoints[i].y;
+        temp_waypoint1->prev = temp_waypoint;
+        temp_waypoint->next = temp_waypoint1;
+        temp_waypoint = temp_waypoint1;
+    }
+    temp_waypoint->next = next_coordinate2;
+    next_coordinate2->prev = temp_waypoint;
+    coverage_planning_node_class::concavity_indentifier();
 }
 }
 PLUGINLIB_EXPORT_CLASS(ns_boustrophedon::coverage_planning_node_class, nodelet::Nodelet)

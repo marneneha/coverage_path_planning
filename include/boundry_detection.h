@@ -13,6 +13,13 @@
 #include <pluginlib/class_list_macros.h>
 #include <coverage_planning/CPPServiceCall.h>
 #include <tf/transform_broadcaster.h>
+#include <sensor_msgs/Image.h>
+#include <image_transport/image_transport.h>
+#include <opencv2/highgui/highgui.hpp>
+#include <cv_bridge/cv_bridge.h>
+#include <geometry_msgs/Point.h>
+#include <coverage_planning/CPPServiceCall.h>
+#include <coverage_planning/UpdateMap.h>
 namespace ns_boundry_detection{
     class boundry_detection_node_class : public nodelet::Nodelet{
         public:
@@ -21,8 +28,21 @@ namespace ns_boundry_detection{
         //     public:
         //     std::vector<pixel> boundry_vector;
         // };
-        // void CameraToWorldCB(std_msgs::Float32MultiArray::ConstPtr& msg);
+        ros::ServiceClient                      update_map_service;
+        void potential_field_generator(const sensor_msgs::Image::ConstPtr& msg);
         ros::ServiceClient                      coverage_planning_trajectory_service_client;
-        std::vector<std::vector<float>>         waypoint_vector;
+        // std::vector<std::vector<float>>         waypoint_vector;
+        // std::vector<std::vector<float>>         trajectory;
+        std::vector<float>                      potential_field;
+        std::vector<int>                        waypoint_iterator_vector;
+        std::vector<mrs_msgs::Reference>        ground_waypoint_vector;
+        std::vector<mrs_msgs::Reference>        visited_waypoint_vector;
+        std::vector<geometry_msgs::Point>       pixel_boundry_vector;
+        mrs_msgs::Reference                     waypoint;
+        mrs_msgs::PathSrv::Response             Pathres;
+        coverage_planning::UpdateMap::Response  UpdateMapRes;
+        void waypoint_generator(std::vector<float> potential_field);
+        void waypoint_wrapper(std::vector<mrs_msgs::Reference> ground_waypoint_vector);
+        void pixel23D(std::vector<float> waypoint_iterator_vector);
     };
 }
