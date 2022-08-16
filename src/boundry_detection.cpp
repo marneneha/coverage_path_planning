@@ -25,17 +25,16 @@ void boundry_detection_node_class::potential_field_generator(const sensor_msgs::
         return;
     }
     cv::Mat Canny_Image = cv_bridge::toCvShare(msg, "bgr8")->image;
-    cv::findNonZero(Canny_Image, pixel_boundry_vector);
+    // cv::findNonZero(Canny_Image, pixel_boundry_vector);
     float xu = msg->width/2;
     float yu = msg->height/2;
     for(int i=0; i<pixel_boundry_vector.size(); i++){
         float x = pixel_boundry_vector[i].x;
         float y = pixel_boundry_vector[i].y;
-        potential_field.push_back(inv(abs(x-xu))+inv(abs(y-yu)));
+        potential_field.push_back((1/(abs(x-xu)))+(1/(abs(y-yu))));
     }
     boundry_detection_node_class::waypoint_generator(potential_field);
 }
-
 void boundry_detection_node_class::waypoint_generator(std::vector<float> potential_field){
     float* min = &potential_field[0];
     float* start = &potential_field[0];
@@ -115,7 +114,6 @@ void boundry_detection_node_class::callbackCameraInfo(const sensor_msgs::CameraI
   // update the camera model using the latest camera info message
   camera_model_.fromCameraInfo(*msg);
 }
-
 void boundry_detection_node_class::TFBroadcaster(std::vector<mrs_msgs::Reference> ground_waypoint_vector){
     // static tf::TransformBroadcaster br;
     // tf::Transform transform;

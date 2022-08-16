@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <bits/stdc++.h>
+#include <math.h>
 #include <mrs_msgs/PathSrv.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <mrs_lib/param_loader.h>
@@ -38,7 +39,7 @@ namespace ns_boundry_detection{
         std::vector<int>                        waypoint_iterator_vector;
         std::vector<mrs_msgs::Reference>        ground_waypoint_vector;
         std::vector<mrs_msgs::Reference>        visited_waypoint_vector;
-        std::vector<geometry_msgs::Point>       pixel_boundry_vector;
+        std::vector<cv::Point>       pixel_boundry_vector;
         mrs_msgs::Reference                     waypoint;
         mrs_msgs::PathSrv::Response             Pathres;
         coverage_planning::UpdateMap::Response  UpdateMapRes;
