@@ -15,6 +15,7 @@
 #include <tf/transform_broadcaster.h>
 #include <sensor_msgs/Image.h>
 #include <image_transport/image_transport.h>
+#include <image_geometry/pinhole_camera_model.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/Point.h>
@@ -41,8 +42,14 @@ namespace ns_boundry_detection{
         mrs_msgs::Reference                     waypoint;
         mrs_msgs::PathSrv::Response             Pathres;
         coverage_planning::UpdateMap::Response  UpdateMapRes;
+        float                                   altitude =5;
         void waypoint_generator(std::vector<float> potential_field);
         void waypoint_wrapper(std::vector<mrs_msgs::Reference> ground_waypoint_vector);
         void pixel23D(std::vector<float> waypoint_iterator_vector);
+        void TFBroadcaster(std::vector<mrs_msgs::Reference> ground_waypoint_vector);
+        image_geometry::PinholeCameraModel      camera_model_;
+        void callbackCameraInfo(const sensor_msgs::CameraInfoConstPtr& msg);
+        ros::Subscriber                         sub_camera_info_;
+        ros::Subscriber                         boundry_sub;
     };
 }

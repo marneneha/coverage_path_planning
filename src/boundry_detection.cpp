@@ -6,7 +6,8 @@ void boundry_detection_node_class::onInit(){
     std::cout<<"INSIDE boundry detection"<<std::endl;
     coverage_planning_trajectory_service_client = nh.serviceClient<mrs_msgs::PathSrv>("path_to_follow");
     update_map_service = nh.serviceClient<coverage_planning::UpdateMap>("update_map_service");
-    ros::Subscriber boundry_sub = nh.subscribe<sensor_msgs::Image>("boundry_topic", 10, &boundry_detection_node_class::potential_field_generator, this);
+    boundry_sub = nh.subscribe<sensor_msgs::Image>("boundry_topic", 10, &boundry_detection_node_class::potential_field_generator, this);
+    sub_camera_info_ = nh.subscribe("camera_info_in", 10, &boundry_detection_node_class::callbackCameraInfo, this);
     ros::spin();
 }
 
@@ -48,8 +49,22 @@ void boundry_detection_node_class::waypoint_generator(std::vector<float> potenti
     //pixel23d(waypoint_iterator_vector);
 }
 void boundry_detection_node_class::pixel23D(std::vector<float> waypoint_iterator_vector){
-    // ground_waypoint_vector[i] = 
-    // boundry_detection_node_class::waypoint_wrapper(std::vector<float> new_waypoints);
+    //  uv_rect;
+    float x, y, z;
+    for(int i = 0; pixel_boundry_vector.size(); i++){
+        cv::Point2d pt2d(pixel_boundry_vector[i].x, pixel_boundry_vector[i].y);
+        cv::Point2d uv_rect = camera_model_.rectifyPoint(pt2d);
+        cv::Point3d pt3d = camera_model_.projectPixelTo3dRay(uv_rect);
+        //subscribe to know the altitude
+        x = pt3d.x*altitude;
+        y = pt3d.y*altitude;
+        z = pt3d.z*altitude;
+        ground_waypoint_vector[i].position.x = x;
+        ground_waypoint_vector[i].position.y = y;
+        ground_waypoint_vector[i].position.z = z;
+    }
+    boundry_detection_node_class::TFBroadcaster(ground_waypoint_vector);
+    boundry_detection_node_class::waypoint_wrapper(ground_waypoint_vector);
 }
 void boundry_detection_node_class::waypoint_wrapper(std::vector<mrs_msgs::Reference> ground_waypoint_vector){ 
         mrs_msgs::PathSrv::Request              Pathreq;
@@ -93,16 +108,23 @@ void boundry_detection_node_class::waypoint_wrapper(std::vector<mrs_msgs::Refere
     }
     
 }
+void boundry_detection_node_class::callbackCameraInfo(const sensor_msgs::CameraInfoConstPtr& msg) {
+//   got_camera_info_       = true;
+//   time_last_camera_info_ = ros::Time::now();
 
-// void boundry_detection_node_class::TFBroadcaster(const mrs_msgs::Pose& msg){
-//     static tf::TransformBroadcaster br;
-//     tf::Transform transform;
-//     transform.setorigin(tf::Vector3(msg->x, msg->y, msg->z));
-//     tf::Quaternion q;
-//     q.setRPY(0, 0, msg->theta);
-//     transform.setRotation(q);
-//     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "image", "world"));
-// }
+  // update the camera model using the latest camera info message
+  camera_model_.fromCameraInfo(*msg);
+}
+
+void boundry_detection_node_class::TFBroadcaster(std::vector<mrs_msgs::Reference> ground_waypoint_vector){
+    // static tf::TransformBroadcaster br;
+    // tf::Transform transform;
+    // transform.setorigin(tf::Vector3(msg->x, msg->y, msg->z));
+    // tf::Quaternion q;
+    // q.setRPY(0, 0, msg->theta);
+    // transform.setRotation(q);
+    // br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "image", "world"));
+}
 
 }
 PLUGINLIB_EXPORT_CLASS(ns_boundry_detection::boundry_detection_node_class, nodelet::Nodelet)
