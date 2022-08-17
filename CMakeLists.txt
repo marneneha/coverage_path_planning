@@ -143,6 +143,9 @@ include_directories(
 add_library(boustrophedon_with_TSP
 src/boustrophedon_with_TSP.cpp
 )
+add_library(image_publisher
+src/image_publisher.cpp
+)
 add_library(boundry_detection
 src/boundry_detection.cpp
 )
@@ -176,6 +179,9 @@ src/boundry_detection.cpp
 #   ${catkin_LIBRARIES}
 # )
 target_link_libraries(boustrophedon_with_TSP
+${catkin_LIBRARIES}
+)
+target_link_libraries(image_publisher
 ${catkin_LIBRARIES}
 )
 target_link_libraries(boundry_detection

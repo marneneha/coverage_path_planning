@@ -1,0 +1,26 @@
+#include <ros/ros.h>
+#include <image_transport/image_transport.h>
+#include <opencv2/highgui/highgui.hpp>
+#include <cv_bridge/cv_bridge.h>
+#include <nodelet/nodelet.h>
+#include <string>
+#include <pluginlib/class_list_macros.h>
+
+namespace ns_image_publisher{
+    class image_publisher_node_class: public nodelet::Nodelet{
+        public:
+        virtual void onInit();
+    };
+    void image_publisher_node_class::onInit(){
+        ros::NodeHandle nh = nodelet::Nodelet::getMTPrivateNodeHandle();
+        image_transport::ImageTransport it(nh);
+        std::cout<<"INSIDE IMAGE PUBLISHER"<<std::endl;
+        std::string image_path = "~/Downloads/boundry_image";
+        cv::Mat image = cv::imread(image_path, cv::IMREAD_UNCHANGED);
+        sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image).toImageMsg();
+        image_transport::Publisher image_publisher = it.advertise("camera_info_in", 1);
+        image_publisher.publish(msg);
+        ros::spin();
+    }
+}
+PLUGINLIB_EXPORT_CLASS(ns_image_publisher::image_publisher_node_class, nodelet::Nodelet);
