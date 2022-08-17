@@ -19,6 +19,10 @@ void boundry_detection_node_class::onInit(){
 // }
 
 void boundry_detection_node_class::potential_field_generator(const sensor_msgs::Image::ConstPtr& msg){
+    if(!got_camera_info_){
+        return;
+    }
+    std::cout<<"INSIDE potential_field_generator"<<std::endl;
     //this function searches extreme boundry points for each boundry 
     if(msg->data.size() == 0){
         ROS_ERROR("[CPP]: no image detected on subscriber node");
@@ -36,6 +40,7 @@ void boundry_detection_node_class::potential_field_generator(const sensor_msgs::
     boundry_detection_node_class::waypoint_generator(potential_field);
 }
 void boundry_detection_node_class::waypoint_generator(std::vector<float> potential_field){
+    std::cout<<"INSIDE waypoint_generator"<<std::endl;
     float* min = &potential_field[0];
     float* start = &potential_field[0];
     for(int i =0; i<potential_field.size(); i++){
@@ -48,6 +53,7 @@ void boundry_detection_node_class::waypoint_generator(std::vector<float> potenti
     //pixel23d(waypoint_iterator_vector);
 }
 void boundry_detection_node_class::pixel23D(std::vector<float> waypoint_iterator_vector){
+    std::cout<<"INSIDE pixel23D"<<std::endl;
     //  uv_rect;
     float x, y, z;
     for(int i = 0; pixel_boundry_vector.size(); i++){
@@ -66,6 +72,7 @@ void boundry_detection_node_class::pixel23D(std::vector<float> waypoint_iterator
     boundry_detection_node_class::waypoint_wrapper(ground_waypoint_vector);
 }
 void boundry_detection_node_class::waypoint_wrapper(std::vector<mrs_msgs::Reference> ground_waypoint_vector){ 
+    std::cout<<"INSIDE waypoint_wrapper"<<std::endl;
         mrs_msgs::PathSrv::Request              Pathreq;
         coverage_planning::UpdateMap::Request   UpdateMapReq;
 
@@ -108,7 +115,9 @@ void boundry_detection_node_class::waypoint_wrapper(std::vector<mrs_msgs::Refere
     
 }
 void boundry_detection_node_class::callbackCameraInfo(const sensor_msgs::CameraInfoConstPtr& msg) {
-//   got_camera_info_       = true;
+    std::cout<<"INSIDE callbackCameraInfo"<<std::endl;
+
+  got_camera_info_       = true;
 //   time_last_camera_info_ = ros::Time::now();
 
   // update the camera model using the latest camera info message

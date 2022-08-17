@@ -21,6 +21,9 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   sensor_msgs
   image_transport
+  tf2_ros
+  tf2_geometry_msgs
+  image_geometry
 )
 find_package(  opencv2
 )

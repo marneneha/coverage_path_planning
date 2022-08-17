@@ -44,6 +44,7 @@ namespace ns_boundry_detection{
         mrs_msgs::PathSrv::Response             Pathres;
         coverage_planning::UpdateMap::Response  UpdateMapRes;
         float                                   altitude =5;
+        bool                                    got_camera_info_ = false;
         void waypoint_generator(std::vector<float> potential_field);
         void waypoint_wrapper(std::vector<mrs_msgs::Reference> ground_waypoint_vector);
         void pixel23D(std::vector<float> waypoint_iterator_vector);
