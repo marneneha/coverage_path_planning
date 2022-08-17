@@ -15,8 +15,14 @@ namespace ns_image_publisher{
         ros::NodeHandle nh = nodelet::Nodelet::getMTPrivateNodeHandle();
         image_transport::ImageTransport it(nh);
         std::cout<<"INSIDE IMAGE PUBLISHER"<<std::endl;
-        std::string image_path = "~/Downloads/boundry_image";
-        cv::Mat image = cv::imread(image_path, cv::IMREAD_UNCHANGED);
+        std::string image_path = "/home/mrs/boundry_image.png";
+        cv::Mat image = cv::imread(image_path, cv::IMREAD_COLOR);
+        cv::imshow("Image_publisher_window", image);
+        int k = cv::waitKey(0); // Wait for a keystroke in the window
+            if(k == 's')
+            {
+                cv::imwrite("boundry_image.png", image);
+            }
         sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image).toImageMsg();
         image_transport::Publisher image_publisher = it.advertise("camera_info_in", 1);
         image_publisher.publish(msg);
