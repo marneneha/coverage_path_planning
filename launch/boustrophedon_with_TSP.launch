@@ -24,7 +24,7 @@
   <group ns="$(arg UAV_NAME)">
 
     <!-- TrajectoryGenerator nodelet -->
-    <node pkg="nodelet" type="nodelet" name="coverage_planning" args="$(arg nodelet) ns_boustrophedon/coverage_planning_node_class $(arg nodelet_manager)" launch-prefix="$(arg launch_prefix_debug)" output="screen">
+    <node pkg="nodelet" type="nodelet" name="coverage_planning_boustrophedon" args="$(arg nodelet) ns_boustrophedon/coverage_planning_node_class $(arg nodelet_manager)" launch-prefix="$(arg launch_prefix_debug)" output="screen">
 
       <!-- Subscribers (note that the topic names will also be remapped using the namespace as a prefix) -->
       <!-- <remap from="~path_to_follow" to="coverage_planning/path_to_follow" /> -->

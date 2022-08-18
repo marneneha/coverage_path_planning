@@ -611,6 +611,7 @@ bool coverage_planning_node_class::update_map(coverage_planning::UpdateMap::Requ
     // if(image_classified != true){
     //     return;
     // }
+    std::cout<<"inside update_map"<<std::endl;
     coordinates_node* next_coordinate1;
     coordinates_node* next_coordinate2;
     coordinates_node* temp_waypoint = new coordinates_node();

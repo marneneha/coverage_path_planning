@@ -31,7 +31,6 @@ namespace ns_boundry_detection{
         //     std::vector<pixel> boundry_vector;
         // };
         ros::ServiceClient                      update_map_service;
-        void potential_field_generator(const sensor_msgs::Image::ConstPtr& msg);
         ros::ServiceClient                      coverage_planning_trajectory_service_client;
         // std::vector<std::vector<float>>         waypoint_vector;
         // std::vector<std::vector<float>>         trajectory;
@@ -46,11 +45,12 @@ namespace ns_boundry_detection{
         coverage_planning::UpdateMap::Response  UpdateMapRes;
         float                                   altitude =5;
         bool                                    got_camera_info_ = false;
-        void waypoint_generator(std::vector<float> potential_field);
-        void waypoint_wrapper(std::vector<mrs_msgs::Reference> ground_waypoint_vector);
-        void pixel23D(std::vector<float> waypoint_iterator_vector);
-        void TFBroadcaster(std::vector<mrs_msgs::Reference> ground_waypoint_vector);
+        void waypoint_generator();
+        void waypoint_wrapper();
+        void pixel23D();
+        void TFBroadcaster();
         image_geometry::PinholeCameraModel      camera_model_;
+        void potential_field_generator(const sensor_msgs::Image::ConstPtr& msg);
         void callbackCameraInfo(const sensor_msgs::CameraInfoConstPtr& msg);
         ros::Subscriber                         sub_camera_info_;
         ros::Subscriber                         boundry_sub;
