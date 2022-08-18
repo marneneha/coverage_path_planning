@@ -6,8 +6,8 @@ void boundry_detection_node_class::onInit(){
     std::cout<<"INSIDE boundry detection"<<std::endl;
     coverage_planning_trajectory_service_client = nh.serviceClient<mrs_msgs::PathSrv>("path_to_follow");
     update_map_service = nh.serviceClient<coverage_planning::UpdateMap>("update_map_service");
-    boundry_sub = nh.subscribe<sensor_msgs::Image>("boundry_topic", 10, &boundry_detection_node_class::potential_field_generator, this);
-    sub_camera_info_ = nh.subscribe<sensor_msgs::CameraInfo>("camera_info_in", 10, &boundry_detection_node_class::callbackCameraInfo, this);
+    boundry_sub = nh.subscribe<sensor_msgs::Image>("/uav1/coverage_planning_image_publisher/boundry_topic", 10, &boundry_detection_node_class::potential_field_generator, this);
+    sub_camera_info_ = nh.subscribe<sensor_msgs::CameraInfo>("/uav1/bluefox_optflow/camera_info", 10, &boundry_detection_node_class::callbackCameraInfo, this);
     ros::spin();
 }
 
@@ -28,8 +28,12 @@ void boundry_detection_node_class::potential_field_generator(const sensor_msgs::
         ROS_ERROR("[CPP]: no image detected on subscriber node");
         return;
     }
+    // std::cout<<"m here"<<std::endl;
     cv::Mat Canny_Image = cv_bridge::toCvShare(msg, "bgr8")->image;
+    // std::cout<<"m here1"<<std::endl;
+    cv::cvtColor(Canny_Image, Canny_Image, cv::COLOR_BGR2GRAY);
     cv::findNonZero(Canny_Image, pixel_boundry_vector);
+    // std::cout<<"m here2"<<std::endl;
     float xu = msg->width/2;
     float yu = msg->height/2;
     for(int i=0; i<pixel_boundry_vector.size(); i++){
@@ -50,7 +54,7 @@ void boundry_detection_node_class::waypoint_generator(std::vector<float> potenti
     }
     float iterator = (min-start)/sizeof(float);
     waypoint_iterator_vector.push_back(iterator);
-    //pixel23d(waypoint_iterator_vector);
+    pixel23d(waypoint_iterator_vector);
 }
 void boundry_detection_node_class::pixel23D(std::vector<float> waypoint_iterator_vector){
     std::cout<<"INSIDE pixel23D"<<std::endl;

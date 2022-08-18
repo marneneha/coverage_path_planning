@@ -40,6 +40,7 @@ namespace ns_boundry_detection{
         std::vector<mrs_msgs::Reference>        ground_waypoint_vector;
         std::vector<mrs_msgs::Reference>        visited_waypoint_vector;
         std::vector<cv::Point>                  pixel_boundry_vector;
+        // cv::Mat                                 pixel_boundry_vector;
         mrs_msgs::Reference                     waypoint;
         mrs_msgs::PathSrv::Response             Pathres;
         coverage_planning::UpdateMap::Response  UpdateMapRes;
