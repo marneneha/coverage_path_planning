@@ -34,7 +34,7 @@
       <param name="uav_name" value ="$(arg UAV_NAME)"/>
 
       <!-- Subscribers (note that the topic names will also be remapped using the namespace as a prefix) -->
-      <remap from="~path_to_follow" to="coverage_planning/path_to_follow" />
+      <remap from="~path_to_follow" to="coverage_planning_wrapper/path_to_follow" />
       <remap from="~stop_trajectory_tracking" to="control_manager/stop_trajectory_tracking" />
       <remap from="~start_trajectory_tracking" to="control_manager/start_trajectory_tracking" />
       <remap from="~path_out" to="trajectory_generation/path" />

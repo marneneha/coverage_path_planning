@@ -9,20 +9,20 @@ void coverage_planning_wrapper_class::onInit(){
 		ros::NodeHandle nh = nodelet::Nodelet::getMTPrivateNodeHandle();
 		mrs_lib::ParamLoader param_loader(nh, "coverage_planning_wrapper");
 		//param_loader.loadParam("simulation", _simulation_);
-    std::string uav_name;
+        std::string uav_name;
 		param_loader.loadParam("uav_name", uav_name);
-      ROS_INFO("[CoveragePathPlanner]: Initialized 2.");
+    //   ROS_INFO("[CoveragePathPlanner]: Initialized 2.");
 		m_control_manager_stop_following_service_client = nh.serviceClient<std_srvs::Trigger>("stop_trajectory_tracking");
-      ROS_INFO("[CoveragePathPlanner]: Initialized 3.");
+    //   ROS_INFO("[CoveragePathPlanner]: Initialized 3.");
         m_control_manager_start_following_service_client = nh.serviceClient<std_srvs::Trigger>("start_trajectory_tracking");
-      ROS_INFO("[CoveragePathPlanner]: Initialized 4.");
+    //   ROS_INFO("[CoveragePathPlanner]: Initialized 4.");
 	    m_trajectory_generator_service_client = nh.serviceClient<mrs_msgs::PathSrv>("path_out");
-      ROS_INFO("[CoveragePathPlanner]: Initialized 5.");
+    //   ROS_INFO("[CoveragePathPlanner]: Initialized 5.");
 
 	    m_transformer = mrs_lib::Transformer("coverage_planning_wrapper");
       m_transformer.setDefaultPrefix(uav_name);	
 
-      ROS_INFO("[CoveragePathPlanner]: Initialized 6.");
+    //   ROS_INFO("[CoveragePathPlanner]: Initialized 6.");
 	    m_service_server_follow_path = nh.advertiseService("path_to_follow", &coverage_planning_wrapper_class::callback_goal,this);
 
       ROS_INFO("[CoveragePathPlanner]: Initialized.");

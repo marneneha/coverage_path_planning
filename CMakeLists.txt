@@ -27,6 +27,9 @@ find_package(catkin REQUIRED COMPONENTS
 )
 find_package(  opencv2
 )
+find_package(Eigen3 REQUIRED)
+set(Eigen_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIRS})
+set(Eigen_LIBRARIES ${EIGEN3_LIBRARIES})
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -122,6 +125,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES coverage_planning
   CATKIN_DEPENDS roscpp std_msgs sensor_msgs mrs_lib mrs_msgs geometry_msgs nav_msgs message_runtime 
+  DEPENDS Eigen
   #DEPENDS system_lib
 )
 

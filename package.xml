@@ -64,6 +64,7 @@
   <depend>image_transport</depend>
   <depend>opencv2</depend>
   <depend>cv_bridge</depend>
+  <depend>Eigen</depend>
   
   <build_depend>message_generation</build_depend>
   <exec_depend>message_runtime</exec_depend>

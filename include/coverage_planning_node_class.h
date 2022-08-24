@@ -12,16 +12,23 @@
 #include <pluginlib/class_list_macros.h>
 #include <coverage_planning/CPPServiceCall.h>
 #include <coverage_planning/UpdateMap.h>
+#include <mrs_lib/transformer.h>
+#include <mrs_lib/param_loader.h>
+#include <coverage_planning/WaypointVector.h>
 namespace ns_boustrophedon{
     class coverage_planning_node_class : public nodelet::Nodelet{
         public:
         virtual void onInit();
         //ros::NodeHandle nh;
         ros::ServiceClient                      coverage_planning_trajectory_service_client;
+        ros::ServiceServer                      CPP_call_file;
+        ros::ServiceServer                      curent_area_finder;
+        ros::Subscriber                         ground_waypoint_vector_sub;
         class coordinates_node{
             public:
             float coordinates_x;
             float coordinates_y;
+            float coordinates_z;
             coordinates_node* next;
             coordinates_node* prev;
         };
@@ -33,6 +40,7 @@ namespace ns_boustrophedon{
             coordinates_node* next_coordinate2;
             bool concavity = true;
         };
+        std::string                             _uav_name_;
         std::vector<area_node*>                 divided_area;
         coordinates_node*                       head = new coordinates_node();
         coordinates_node*                       temp1;
@@ -44,6 +52,8 @@ namespace ns_boustrophedon{
         float                                   sweeping_dist;
         mrs_msgs::Reference                     waypoint;
         std::vector <coordinates_node*>         concave_points;
+        //this is wrong and need to be corrected
+        std::vector <geometry_msgs::Point>      NoFlyZoneVector;
         std::vector <coordinates_node*>::iterator concave_points_iterator;
         void cycle_area_node(area_node* temp_area_node);
         mrs_msgs::PathSrv::Request              Pathreq;
@@ -53,6 +63,7 @@ namespace ns_boustrophedon{
         
         bool read(coverage_planning::CPPServiceCall::Request& Pathreq, coverage_planning::CPPServiceCall::Response& Pathres);
         bool update_map(coverage_planning::UpdateMap::Request& UpdateMapReq,  coverage_planning::UpdateMap::Response& UpdateMapRes);
+        bool curent_area_finder(coverage_planning::UpdateMap::Request& UpdateMapReq,  coverage_planning::UpdateMap::Response& UpdateMapRes);
         void coordinate_finder();
         int concavity_indentifier();
         void sorting(std::vector <coordinates_node*>& concave_points);
