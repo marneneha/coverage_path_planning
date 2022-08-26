@@ -15,7 +15,7 @@
 #include <geometry_msgs/Point.h>
 #include <coverage_planning/CPPServiceCall.h>
 #include <coverage_planning/UpdateMap.h>
-#include <coverage_planning/CPPServiceCall.h>
+// #include <coverage_planning/WaypointVector.h>
 #include <mrs_lib/param_loader.h>
 #include <mrs_lib/transformer.h>
 #include <pluginlib/class_list_macros.h>
@@ -53,7 +53,7 @@ namespace ns_boundry_detection{
         // std::vector<std::vector<float>>         waypoint_vector;
         // std::vector<std::vector<float>>         trajectory;
         std::vector<float>                      potential_field;
-        std::vector<int>                        waypoint_iterator_vector;
+        int                                     waypoint_iterator;
         std::vector<mrs_msgs::Reference>        ground_waypoint_vector;
         std::vector<mrs_msgs::Reference>        visited_waypoint_vector;
         std::vector<cv::Point>                  pixel_boundry_vector;
@@ -76,6 +76,6 @@ namespace ns_boundry_detection{
         ros::Subscriber                         sub_camera_info_;
         ros::Subscriber                         boundry_sub;
         ros::Subscriber                         sub_uav_state_info_;
-        ros::Publisher                          waypoint_vector_pub;
+        ros::Publisher                          ground_waypoint_pub;
     };
 }

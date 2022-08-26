@@ -1,4 +1,0 @@
-geometry_msgs/Point[] visited_waypoints
-bool NoFlyZone
----
-bool responce

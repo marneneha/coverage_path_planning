@@ -1,1 +1,1 @@
-mrs_msgs/Reference[] ground_waypoint_vector
+mrs_msgs/Reference ground_waypoint

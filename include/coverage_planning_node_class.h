@@ -11,10 +11,10 @@
 #include <mrs_lib/param_loader.h>
 #include <pluginlib/class_list_macros.h>
 #include <coverage_planning/CPPServiceCall.h>
-#include <coverage_planning/UpdateMap.h>
+// #include <coverage_planning/UpdateMap.h>
+#include <coverage_planning/WaypointVector.h>
 #include <mrs_lib/transformer.h>
 #include <mrs_lib/param_loader.h>
-#include <coverage_planning/WaypointVector.h>
 namespace ns_boustrophedon{
     class coverage_planning_node_class : public nodelet::Nodelet{
         public:
@@ -23,7 +23,7 @@ namespace ns_boustrophedon{
         ros::ServiceClient                      coverage_planning_trajectory_service_client;
         ros::ServiceServer                      CPP_call_file;
         ros::ServiceServer                      curent_area_finder;
-        ros::Subscriber                         ground_waypoint_vector_sub;
+        ros::Subscriber                         ground_waypoint_sub;
         class coordinates_node{
             public:
             float coordinates_x;
@@ -44,26 +44,36 @@ namespace ns_boustrophedon{
         std::vector<area_node*>                 divided_area;
         coordinates_node*                       head = new coordinates_node();
         coordinates_node*                       temp1;
+        coordinates_node*                       prev_coordinate1;
+        coordinates_node*                       prev_coordinate2;
+        coordinates_node*                       next_coordinate1;
+        coordinates_node*                       next_coordinate2;  
         bool                                    file_read = false;
         bool                                    sorting_status = false;
         bool                                    area_division_type = false;
         bool                                    concavity = false;
+        bool                                    next_boundary = false;
+        bool                                    prev_boundary = false;
+        bool                                    no_fly_zone = false;
+        float                                   abselon =0.5;
         std::string                             _coverage_planning_area_;
         float                                   sweeping_dist;
         mrs_msgs::Reference                     waypoint;
+        mrs_msgs::Reference                     ground_waypoint;
         std::vector <coordinates_node*>         concave_points;
         //this is wrong and need to be corrected
         std::vector <geometry_msgs::Point>      NoFlyZoneVector;
         std::vector <coordinates_node*>::iterator concave_points_iterator;
+        std::vector<mrs_msgs::Reference>        visited_waypoint_vector;
         void cycle_area_node(area_node* temp_area_node);
         mrs_msgs::PathSrv::Request              Pathreq;
         mrs_msgs::PathSrv::Response             Pathres;
-        coverage_planning::UpdateMap::Request   UpdateMapReq;
-        coverage_planning::UpdateMap::Response  UpdateMapRes;
+        // coverage_planning::UpdateMap::Request   UpdateMapReq;
+        // coverage_planning::UpdateMap::Response  UpdateMapRes;
         
         bool read(coverage_planning::CPPServiceCall::Request& Pathreq, coverage_planning::CPPServiceCall::Response& Pathres);
-        bool update_map(coverage_planning::UpdateMap::Request& UpdateMapReq,  coverage_planning::UpdateMap::Response& UpdateMapRes);
-        bool curent_area_finder(coverage_planning::UpdateMap::Request& UpdateMapReq,  coverage_planning::UpdateMap::Response& UpdateMapRes);
+        void update_map(const coverage_planning::WaypointVector::ConstPtr& msg);
+        // bool curent_area_finder(coverage_planning::UpdateMap::Request& UpdateMapReq,  coverage_planning::UpdateMap::Response& UpdateMapRes);
         void coordinate_finder();
         int concavity_indentifier();
         void sorting(std::vector <coordinates_node*>& concave_points);

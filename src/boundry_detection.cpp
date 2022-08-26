@@ -11,7 +11,7 @@ void boundry_detection_node_class::onInit(){
     boundry_sub = nh.subscribe<sensor_msgs::Image>("boundry_topic", 10, &boundry_detection_node_class::potential_field_generator, this);
     sub_camera_info_ = nh.subscribe<sensor_msgs::CameraInfo>("camera_info", 1, &boundry_detection_node_class::callbackCameraInfo, this);
     sub_uav_state_info_ = nh.subscribe<mrs_msgs::UavState>("uav_state", 1, &boundry_detection_node_class::callbackUavStatus, this);
-    waypoint_vector_pub = nh.advertise("waypoint_vector_topic", 1);
+    ground_waypoint_pub = nh.advertise<mrs_msgs::Reference>("waypoint_topic", 1);
     ros::spin();
 }
 
@@ -64,8 +64,7 @@ void boundry_detection_node_class::waypoint_generator(){
             min = &potential_field[i];
         }
     }
-    float iterator = (min-start)/sizeof(float);
-    waypoint_iterator_vector.push_back(iterator);
+    waypoint_iterator = (min-start)/sizeof(float);
     boundry_detection_node_class::waypoint_wrapper();
 }
 // void boundry_detection_node_class::pixel23D(){
@@ -87,8 +86,8 @@ void boundry_detection_node_class::waypoint_wrapper(){
         mrs_msgs::PathSrv::Request              Pathreq;
         coverage_planning::UpdateMap::Request   UpdateMapReq;
         mrs_msgs::Reference ground_waypoint;
-    for(int i = 0; i < waypoint_iterator_vector.size(); i++){
-        cv::Point2d pt2d(pixel_boundry_vector[waypoint_iterator_vector[i]].x, pixel_boundry_vector[waypoint_iterator_vector[i]].y);
+
+        cv::Point2d pt2d(pixel_boundry_vector[waypoint_iterator].x, pixel_boundry_vector[waypoint_iterator].y);
         cv::circle(Canny_Image, (pt2d), 0, (255, 0, 0), -1, cv::LINE_8, 0);
         cv::imwrite("imagewithwaypoint", Canny_Image);
         cv::Point2d uv_rect = camera_model_.rectifyPoint(pt2d);
@@ -97,11 +96,11 @@ void boundry_detection_node_class::waypoint_wrapper(){
         waypoint.position.y = pt3d.y*altitude;
         waypoint.position.z = pt3d.z*altitude;
         ground_waypoint.position = boundry_detection_node_class::TFBroadcaster(waypoint.position);
-        std::cout<<"x is"<<ground_waypoint.position.x<<"y is"<<ground_waypoint.position.y<<"z is"<<ground_waypoint.position.z<<"waypoint_iterator_vector[i] is"<<waypoint_iterator_vector[i]<<std::endl;
+        std::cout<<"x is"<<ground_waypoint.position.x<<"y is"<<ground_waypoint.position.y<<"z is"<<ground_waypoint.position.z<<"waypoint_iterator is"<<waypoint_iterator<<std::endl;
         // waypoint.heading = current_pose.pose.position.heading;
         //this is pblm look into it
         ground_waypoint.heading = 0;
-        ground_waypoint_vector.push_back(ground_waypoint);
+        // ground_waypoint_vector.push_back(ground_waypoint);
         // if(visited_waypoint_vector.size() == 0){
         //     visited_waypoint_vector.push_back(ground_waypoint);
         // }
@@ -109,10 +108,9 @@ void boundry_detection_node_class::waypoint_wrapper(){
         //     visited_waypoint_vector.push_back(ground_waypoint);
         // }
         Pathreq.path.points.push_back(ground_waypoint);
-    }
-    waypoint_vector_pub.publish(ground_waypoint_vector);
-    waypoint_iterator_vector.clear();
-    ground_waypoint_vector.clear();
+    ground_waypoint_pub.publish(ground_waypoint);
+    // waypoint_iterator_vector.clear();
+    // ground_waypoint_vector.clear();
     potential_field.clear();
     // visited_waypoint_vector.clear();
     pixel_boundry_vector.clear();
@@ -127,65 +125,61 @@ void boundry_detection_node_class::waypoint_wrapper(){
     Pathreq.path.relax_heading = true;
     coverage_planning_trajectory_service_client.call(Pathreq, Pathres);    
 }
-void boundry_detection_node_class::callbackUavStatus(const mrs_msgs::UavState::ConstPtr& msg){
-        // put better condition
-    if(!boundry_detect || !ground_waypoint_vector_update){
-        return;
-    }
-
-    geometry_msgs::Point visited_waypoint;
-    Eigen::Vector3d init_point_to_current_point, prev_point_to_boundry, next_point_to_boundry, current_point_to_first_waypoint;
-    Eigen::Vector3d current_point(msg->pose.position.x, msg->pose.position.y, msg->pose.position.z);
-    Eigen::Vector3d first_waypoint(ground_waypoint_vector[0].position.x, ground_waypoint_vector[0].position.y, ground_waypoint_vector[0].position.z);
-    current_point_to_first_waypoint = current_point - first_waypoint;
-    init_point_to_current_point = current_point - init_pose;
-    prev_point_to_boundry = current_point - (prev_coordinate2-prev_coordinate2->next);
-    next_point_to_boundry = current_point - (next_coordinate2-next_coordinate2->prev);
-    altitude = msg->pose.position.z;
-    if((current_point_to_first_waypoint.norm()<abselon)){
-        reached_first_waypoint = true;
-    }
-    if(!reached_first_waypoint){
-        return;
-    }
-
-    if(msg->pose.position.x > next_coordinate2.x){
-        next_coordinate2 = next_coordinate2->next;
-    }
-    if(msg->pose.position.x > prev_coordinate2.x){
-        prev_coordinate2 = prev_coordinate2->prev;
-    }    
-
-    if(init_point_to_current_point.norm()<abselon){
-        for(int i=0; i < visited_waypoint_vector.size(); i++){
-            visited_waypoint.x = visited_waypoint_vector[i].position.x;
-            visited_waypoint.y = visited_waypoint_vector[i].position.y;
-            visited_waypoint.z = visited_waypoint_vector[i].position.z;
-            UpdateMapReq.NoFlyZone = true;
-            UpdateMapReq.visited_waypoints.push_back(visited_waypoint);
-        }
-        visited_waypoint_vector.clear();
-        update_map_service.call(UpdateMapReq, UpdateMapRes);
-        boundry_detect = false;
-        reached_first_waypoint = false;
-        ground_waypoint_vector_update = false;
-    }
-
-    if(prev_point_to_boundry.norm()<abselon || next_point_to_boundry.norm()<abselon){
-        for(int i=0; i < visited_waypoint_vector.size(); i++){
-            visited_waypoint.x = visited_waypoint_vector[i].position.x;
-            visited_waypoint.y = visited_waypoint_vector[i].position.y;
-            visited_waypoint.z = visited_waypoint_vector[i].position.z;
-            UpdateMapReq.NoFlyZone = false;
-            UpdateMapReq.visited_waypoints.push_back(visited_waypoint);
-        }
-        visited_waypoint_vector.clear();
-        update_map_service.call(UpdateMapReq, UpdateMapRes);
-        boundry_detect = false;
-        reached_first_waypoint = false;
-        ground_waypoint_vector_update = false;        
-    }
-}
+// void boundry_detection_node_class::callbackUavStatus(const mrs_msgs::UavState::ConstPtr& msg){
+//         // put better condition
+//     if(!boundry_detect || !ground_waypoint_vector_update){
+//         return;
+//     }
+//     geometry_msgs::Point visited_waypoint;
+//     Eigen::Vector3d init_point_to_current_point, prev_point_to_boundry, next_point_to_boundry, current_point_to_first_waypoint;
+//     Eigen::Vector3d current_point(msg->pose.position.x, msg->pose.position.y, msg->pose.position.z);
+//     Eigen::Vector3d first_waypoint(ground_waypoint_vector[0].position.x, ground_waypoint_vector[0].position.y, ground_waypoint_vector[0].position.z);
+//     current_point_to_first_waypoint = current_point - first_waypoint;
+//     init_point_to_current_point = current_point - init_pose;
+//     prev_point_to_boundry = current_point - (prev_coordinate2-prev_coordinate2->next);
+//     next_point_to_boundry = current_point - (next_coordinate2-next_coordinate2->prev);
+//     altitude = msg->pose.position.z;
+//     if((current_point_to_first_waypoint.norm()<abselon)){
+//         reached_first_waypoint = true;
+//     }
+//     if(!reached_first_waypoint){
+//         return;
+//     }
+//     if(msg->pose.position.x > next_coordinate2.x){
+//         next_coordinate2 = next_coordinate2->next;
+//     }
+//     if(msg->pose.position.x > prev_coordinate2.x){
+//         prev_coordinate2 = prev_coordinate2->prev;
+//     }    
+//     if(init_point_to_current_point.norm()<abselon){
+//         for(int i=0; i < visited_waypoint_vector.size(); i++){
+//             visited_waypoint.x = visited_waypoint_vector[i].position.x;
+//             visited_waypoint.y = visited_waypoint_vector[i].position.y;
+//             visited_waypoint.z = visited_waypoint_vector[i].position.z;
+//             UpdateMapReq.NoFlyZone = true;
+//             UpdateMapReq.visited_waypoints.push_back(visited_waypoint);
+//         }
+//         visited_waypoint_vector.clear();
+//         update_map_service.call(UpdateMapReq, UpdateMapRes);
+//         boundry_detect = false;
+//         reached_first_waypoint = false;
+//         ground_waypoint_vector_update = false;
+//     }
+//     if(prev_point_to_boundry.norm()<abselon || next_point_to_boundry.norm()<abselon){
+//         for(int i=0; i < visited_waypoint_vector.size(); i++){
+//             visited_waypoint.x = visited_waypoint_vector[i].position.x;
+//             visited_waypoint.y = visited_waypoint_vector[i].position.y;
+//             visited_waypoint.z = visited_waypoint_vector[i].position.z;
+//             UpdateMapReq.NoFlyZone = false;
+//             UpdateMapReq.visited_waypoints.push_back(visited_waypoint);
+//         }
+//         visited_waypoint_vector.clear();
+//         update_map_service.call(UpdateMapReq, UpdateMapRes);
+//         boundry_detect = false;
+//         reached_first_waypoint = false;
+//         ground_waypoint_vector_update = false;        
+//     }
+// }
 void boundry_detection_node_class::callbackCameraInfo(const sensor_msgs::CameraInfo::ConstPtr& msg){
     // std::cout<<"INSIDE callbackCameraInfo"<<std::endl;
 

@@ -7,8 +7,8 @@ void coverage_planning_node_class::onInit(){
     coverage_planning_trajectory_service_client = nh.serviceClient<mrs_msgs::PathSrv>("path_to_follow");
     CPP_call_file = nh.advertiseService("CPP_service_call", &coverage_planning_node_class::read, this);
     // ros::ServiceServer update_map = nh.advertiseService("update_map_service", &coverage_planning_node_class::update_map, this);
-    curent_area_finder = nh.advertiseService("curent_area_service", &coverage_planning_node_class::curent_area_finder, this);
-    ground_waypoint_vector_sub = nh.subscribe<coverage_planning::WaypointVector>("waypoint_vector_topic", 1, &coverage_planning_node_class::updateMap, this);
+    // curent_area_finder = nh.advertiseService("curent_area_service", &coverage_planning_node_class::curent_area_finder, this);
+    ground_waypoint_sub = nh.subscribe<coverage_planning::WaypointVector>("waypoint_vector_topic", 1, &coverage_planning_node_class::update_map, this);
     std::cout<<"INSIDE BOUSTROPHEDON"<<std::endl;
     ros::spin();
 }
@@ -129,10 +129,6 @@ void coverage_planning_node_class::boustrophedon_area_division(coordinates_node*
     }
     float x, y, slope1, slope2;
     area_node* temp_area_node = new area_node();
-    coordinates_node* prev_coordinate1;
-    coordinates_node* prev_coordinate2;
-    coordinates_node* next_coordinate1;
-    coordinates_node* next_coordinate2;  
     coordinates_node* prev_intermidiate_coordinate;
     coordinates_node* next_intermidiate_coordinate;
     coordinates_node* prev_intermidiate_coordinate_continue;
@@ -392,10 +388,10 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
     else
         C = side_coordinate1->coordinates_y-(slope1*side_coordinate1->coordinates_x);
     //cout<<"C is"<<C<<endl;
-    coordinates_node* prev_coordinate1 = side_coordinate1; 
-    coordinates_node* next_coordinate1 = side_coordinate2;
-    coordinates_node* prev_coordinate2 = side_coordinate1->prev;
-    coordinates_node* next_coordinate2 = side_coordinate2->next;
+    prev_coordinate1 = side_coordinate1; 
+    next_coordinate1 = side_coordinate2;
+    prev_coordinate2 = side_coordinate1->prev;
+    next_coordinate2 = side_coordinate2->next;
     std::cout<<"prev_coordinate1 are"<<prev_coordinate1->coordinates_x<<","<<prev_coordinate1->coordinates_y<<std::endl;
     //cout<<"prev_coordinate2 are"<<prev_coordinate2->coordinates_x<<","<<prev_coordinate2->coordinates_y<<endl;
     //cout<<"next_coordinate1 are"<<next_coordinate1->coordinates_x<<","<<next_coordinate1->coordinates_y<<endl;
@@ -585,12 +581,12 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
     req.path.relax_heading = true;
     coverage_planning_trajectory_service_client.call(req, res);
 }
-bool coverage_planning_node_class::update_map(const coverage_planning::WaypointVector::ConstPtr& msg){
-    // if(image_classified != true){
-    //     return;
-    // }
-        ground_waypoint = msg->ground_waypoint_vector[i];
-        Eigen::Vector3d first_waypoint_to_next_boundry = 
+void coverage_planning_node_class::update_map(const coverage_planning::WaypointVector::ConstPtr& msg){
+    int minimum_waypoint_threshold =5;
+    ground_waypoint = msg->ground_waypoint;
+    Eigen::Vector3d first_waypoint_to_next_boundry(0,0,0), current_waypoint_to_next_boundry(0, 0, 0), first_waypoint_to_prev_boundry(0, 0, 0); 
+    coordinates_node* temp_waypoint;  
+
     if(first_waypoint_to_next_boundry.norm()<abselon && next_boundary != true){
         next_boundary = true;
     }
@@ -600,15 +596,20 @@ bool coverage_planning_node_class::update_map(const coverage_planning::WaypointV
     else if(no_fly_zone != true){
         no_fly_zone = true;
     }
-
+    Eigen::Vector3d last_point_to_current_point;
     if(next_boundary){
+        if(visited_waypoint_vector.size()>0){
+            Eigen::Vector3d current_point(ground_waypoint.position.x, ground_waypoint.position.y, ground_waypoint.position.z);
+            Eigen::Vector3d last_point(visited_waypoint_vector[-1].position.x, visited_waypoint_vector[-1].position.y, visited_waypoint_vector[-1].position.z);
+            Eigen::Vector3d last_point_to_current_point = current_point - last_point; 
+        }
+        if(last_point_to_current_point.norm() > abselon || visited_waypoint_vector.size() == 0){
+            visited_waypoint_vector.push_back(ground_waypoint);
+        }
         if(ground_waypoint.position.x > next_coordinate2->coordinates_x){
             next_coordinate2 = next_coordinate2->next;
         }
-        if(last_point_to_current_point.norm()abselon){
-            visited_waypoint_vector.push_back(ground_waypoint);
-        }
-        if(first_waypoint_to_next_boundry.norm()<abselon){
+        if(current_waypoint_to_next_boundry.norm()<abselon && visited_waypoint_vector.size()>minimum_waypoint_threshold){
             for(int i = 1; i< visited_waypoint_vector.size(); i++){
                 coordinates_node* temp_waypoint1 = new coordinates_node();
                 temp_waypoint->coordinates_x = visited_waypoint_vector[i].position.x;
@@ -624,12 +625,11 @@ bool coverage_planning_node_class::update_map(const coverage_planning::WaypointV
             coverage_planning_node_class::concavity_indentifier();
         }
     }
-
     if(prev_boundary){
         if(ground_waypoint.position.x > prev_coordinate2->coordinates_x){
             prev_coordinate2 = prev_coordinate2->prev;
         }        
-        if(last_point_to_current_point.norm()abselon){
+        if(last_point_to_current_point.norm()>abselon){
             visited_waypoint_vector.push_back(ground_waypoint);
         }
         if(first_waypoint_to_prev_boundry.norm()<abselon){
@@ -648,55 +648,8 @@ bool coverage_planning_node_class::update_map(const coverage_planning::WaypointV
             coverage_planning_node_class::concavity_indentifier();
         }
     }
-
     if(no_fly_zone){
-
-    }
-
-
-
-
-
-
-
-
-    mrs_msgs::Reference ground_waypoint;
-    std::vector<mrs_msgs::Reference> visited_waypoint_vector;
-    for(int i=0; i<msg->ground_waypoint_vector.size(); i++){
-        ground_waypoint = msg->ground_waypoint_vector[i];
-        if(ground_waypoint.position.x > next_coordinate2->coordinates_x){
-            next_coordinate2 = next_coordinate2->next;
-        }
-        if(ground_waypoint.position.x > prev_coordinate2->coordinates_x){
-            prev_coordinate2 = prev_coordinate2->prev;
-        }
-
-    }
-            std::cout<<"inside update_map"<<std::endl;
-            coordinates_node* next_coordinate1;
-            coordinates_node* next_coordinate2;
-            coordinates_node* temp_waypoint = new coordinates_node();
-            temp_waypoint->coordinates_x = UpdateMapReq.visited_waypoints[0].x;
-            temp_waypoint->coordinates_y = UpdateMapReq.visited_waypoints[0].y;
-            next_coordinate1->next = temp_waypoint;
-            temp_waypoint->prev = next_coordinate1;
-    if(UpdateMapReq.NoFlyZone){
-        for(int i = 1; i< UpdateMapReq.visited_waypoints.size(); i++){
-            NoFlyZoneVector.push_back(UpdateMapReq.visited_waypoints[i]);
-        }
-    }
-    else{
-        for(int i = 1; i< UpdateMapReq.visited_waypoints.size(); i++){
-            coordinates_node* temp_waypoint1 = new coordinates_node();
-            temp_waypoint->coordinates_x = UpdateMapReq.visited_waypoints[i].x;
-            temp_waypoint->coordinates_y = UpdateMapReq.visited_waypoints[i].y;
-            temp_waypoint1->prev = temp_waypoint;
-            temp_waypoint->next = temp_waypoint1;
-            temp_waypoint = temp_waypoint1;
-        }
-        temp_waypoint->next = next_coordinate2;
-        next_coordinate2->prev = temp_waypoint;
-        coverage_planning_node_class::concavity_indentifier();
+        no_fly_zone = false;
     }
 }
 float coverage_planning_node_class::dist(coordinates_node* node1, coordinates_node* node2){
@@ -725,8 +678,7 @@ coverage_planning_node_class::coordinates_node* coverage_planning_node_class::ex
         return next_coordinate;
     }
 }
-bool coverage_planning_node_class::curent_area_finder(coverage_planning::UpdateMap::Request& UpdateMapReq,  coverage_planning::UpdateMap::Response& UpdateMapRes){
+// bool coverage_planning_node_class::curent_area_finder(coverage_planning::UpdateMap::Request& UpdateMapReq,  coverage_planning::UpdateMap::Response& UpdateMapRes){
+// }
 }
-}
-
 PLUGINLIB_EXPORT_CLASS(ns_boustrophedon::coverage_planning_node_class, nodelet::Nodelet)

@@ -13,6 +13,7 @@ namespace ns_image_publisher{
         public:
         virtual void onInit();
         std::string _uav_name_, _image_path_;
+        bool waypoint_reached = false;
     };
     void image_publisher_node_class::onInit(){
         ros::NodeHandle nh = nodelet::Nodelet::getMTPrivateNodeHandle();
