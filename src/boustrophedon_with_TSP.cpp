@@ -58,7 +58,7 @@ bool coverage_planning_node_class::read(coverage_planning::CPPServiceCall::Reque
     return 0;
 }
 // head
-int coverage_planning_node_class::concavity_indentifier(){
+int  coverage_planning_node_class::concavity_indentifier(){
     //check if file is read or not
     if(!file_read){
         ROS_ERROR("[CPP]: file is opened but cant be read or there is no data saved in the file");
@@ -129,6 +129,10 @@ void coverage_planning_node_class::boustrophedon_area_division(coordinates_node*
     }
     float x, y, slope1, slope2;
     area_node* temp_area_node = new area_node();
+    coordinates_node* prev_coordinate1;
+    coordinates_node* prev_coordinate2;
+    coordinates_node* next_coordinate1;
+    coordinates_node* next_coordinate2;
     coordinates_node* prev_intermidiate_coordinate;
     coordinates_node* next_intermidiate_coordinate;
     coordinates_node* prev_intermidiate_coordinate_continue;
@@ -351,8 +355,7 @@ void coverage_planning_node_class::boustrophedon_matrix(){
                 prev_coordinate2_node1 = prev_coordinate2_node1->prev;
                 next_coordinate1_node1 = next_coordinate1_node1->prev;
                 next_coordinate2_node1 = next_coordinate2_node1->prev;
-         }
-        
+        }
     }
 }
 //node_read (read from the file tours what is the order for sweeping)
@@ -388,10 +391,10 @@ void coverage_planning_node_class::trajectory_planner(coordinates_node* side_coo
     else
         C = side_coordinate1->coordinates_y-(slope1*side_coordinate1->coordinates_x);
     //cout<<"C is"<<C<<endl;
-    prev_coordinate1 = side_coordinate1; 
-    next_coordinate1 = side_coordinate2;
-    prev_coordinate2 = side_coordinate1->prev;
-    next_coordinate2 = side_coordinate2->next;
+    coordinates_node* prev_coordinate1 = side_coordinate1; 
+    coordinates_node* next_coordinate1 = side_coordinate2;
+    coordinates_node* prev_coordinate2 = side_coordinate1->prev;
+    coordinates_node* next_coordinate2 = side_coordinate2->next;
     std::cout<<"prev_coordinate1 are"<<prev_coordinate1->coordinates_x<<","<<prev_coordinate1->coordinates_y<<std::endl;
     //cout<<"prev_coordinate2 are"<<prev_coordinate2->coordinates_x<<","<<prev_coordinate2->coordinates_y<<endl;
     //cout<<"next_coordinate1 are"<<next_coordinate1->coordinates_x<<","<<next_coordinate1->coordinates_y<<endl;
@@ -586,6 +589,10 @@ void coverage_planning_node_class::update_map(const coverage_planning::WaypointV
     ground_waypoint = msg->ground_waypoint;
     Eigen::Vector3d first_waypoint_to_next_boundry(0,0,0), current_waypoint_to_next_boundry(0, 0, 0), first_waypoint_to_prev_boundry(0, 0, 0); 
     coordinates_node* temp_waypoint;  
+    coordinates_node* prev_coordinate1;
+    coordinates_node* prev_coordinate2;
+    coordinates_node* next_coordinate1;
+    coordinates_node* next_coordinate2;
 
     if(first_waypoint_to_next_boundry.norm()<abselon && next_boundary != true){
         next_boundary = true;
